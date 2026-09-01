@@ -330,16 +330,16 @@
     .task-del-btn:hover { color: var(--accent-red); background: rgba(224,96,126,0.12); }
 
     .add-task-row {
-      display: flex; gap: 8px; margin-top: 12px; padding-top: 12px;
+      display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; padding-top: 12px;
       border-top: 1px dashed var(--border);
     }
     .add-task-select {
       background: var(--bg-color); border: 1px solid var(--border); color: var(--text-main);
-      border-radius: 8px; padding: 0 8px; font-family: inherit; font-size: 0.85rem; outline: none;
+      border-radius: 8px; padding: 8px; font-family: inherit; font-size: 0.85rem; outline: none;
       flex-shrink: 0;
     }
     .add-task-input {
-      flex: 1; background: var(--bg-color); border: 1px solid var(--border); color: var(--text-main);
+      flex: 1 1 140px; min-width: 0; background: var(--bg-color); border: 1px solid var(--border); color: var(--text-main);
       border-radius: 8px; padding: 8px 12px; font-family: inherit; font-size: 0.88rem; outline: none;
       transition: border-color .15s ease;
     }
@@ -347,8 +347,8 @@
     .add-task-btn {
       background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
       border: none; color: #fff; font-weight: 700; font-size: 0.85rem;
-      padding: 0 16px; border-radius: 8px; cursor: pointer; white-space: nowrap;
-      transition: transform .15s ease;
+      padding: 8px 16px; border-radius: 8px; cursor: pointer; white-space: nowrap;
+      transition: transform .15s ease; flex-shrink: 0;
     }
     .add-task-btn:hover { transform: translateY(-1px); }
     .task-item.completed { background: #20121a30; border-color: #2a1520; }
@@ -609,6 +609,10 @@
       .modal-card h2 { font-size: 1.4rem; }
 
       .papers-drawer { width: 100vw; }
+
+      .add-task-row { flex-direction: column; align-items: stretch; }
+      .add-task-select { width: 100%; }
+      .add-task-btn { width: 100%; padding: 10px 0; }
     }
 
     /* extra-tight iPhone widths (SE, mini) */
