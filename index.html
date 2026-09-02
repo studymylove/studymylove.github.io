@@ -573,6 +573,373 @@
       100% { background-position: 220% 50%; }
     }
 
+    /* ---------------- shop / coins / accessories ---------------- */
+    .coin-pill {
+      display:flex; align-items:center; gap:6px; font-size:.8rem; font-weight:800;
+      background: var(--surface-deep); border:1px solid var(--border); color:#ffd27d;
+      padding:4px 11px; border-radius:20px; white-space:nowrap;
+    }
+    .coin-pill .coin-emoji { font-size:.95rem; }
+    .shop-head-row { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .shop-tab-row { display:flex; gap:8px; padding:14px 20px 0; }
+    .shop-tab { flex:1; }
+    .shop-section-title { font-size:.85rem; font-weight:800; color:var(--text-main); margin:4px 0 10px; display:flex; align-items:center; gap:6px; }
+    .shop-subtext { font-size:.74rem; color:var(--text-muted); margin-bottom:14px; line-height:1.4; }
+    .shop-gender-row { display:flex; gap:10px; margin-bottom:20px; }
+    .mystery-box-card {
+      flex:1; background: var(--surface-deep); border:1px solid var(--border); border-radius:16px;
+      padding:16px 12px; text-align:center; cursor:pointer; transition: all .18s ease; position:relative; overflow:hidden;
+    }
+    .mystery-box-card:hover { transform: translateY(-2px); border-color: var(--accent-purple); }
+    .mystery-box-card:active { transform: scale(.97); }
+    .mystery-box-card .box-emoji { font-size:2.4rem; display:block; margin-bottom:6px; animation: float 3s ease-in-out infinite; }
+    .mystery-box-card .box-title { font-weight:800; font-size:.86rem; margin-bottom:4px; }
+    .mystery-box-card .box-price { font-size:.76rem; color:var(--accent-amber); font-weight:700; }
+    .mystery-box-card.girly { background: linear-gradient(160deg, rgba(255,158,199,.12), var(--surface-deep)); }
+    .mystery-box-card.boys { background: linear-gradient(160deg, rgba(103,182,232,.12), var(--surface-deep)); }
+    .mystery-box-card:disabled, .mystery-box-card.disabled { opacity:.45; cursor:not-allowed; transform:none; }
+
+    .shop-grid, .inventory-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(130px, 160px)); gap:10px; justify-content:center; }
+    .item-card {
+      background: var(--bg-color); border:1px solid var(--border); border-radius:12px; padding:10px;
+      display:flex; flex-direction:column; gap:4px; position:relative; transition: all .15s ease;
+    }
+    .item-card .item-emoji { font-size:1.5rem; }
+    .item-card .item-name { font-size:.78rem; font-weight:700; line-height:1.25; min-height:2em; }
+    .item-card .item-rarity { font-size:.62rem; font-weight:800; text-transform:uppercase; letter-spacing:.3px; }
+    .item-card .item-price-row { display:flex; align-items:center; justify-content:space-between; margin-top:4px; gap:6px; }
+    .item-card .item-price { font-size:.72rem; font-weight:700; color:var(--accent-amber); display:flex; align-items:center; gap:3px; }
+    .item-card .item-buy-btn {
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue)); border:none; color:#fff;
+      font-size:.68rem; font-weight:800; padding:5px 9px; border-radius:8px; cursor:pointer; transition: transform .15s ease;
+    }
+    .item-card .item-buy-btn:hover { transform: scale(1.05); }
+    .item-card .item-buy-btn:disabled { background: var(--border); cursor:not-allowed; opacity:.6; }
+    .item-card .item-owned-badge { font-size:.64rem; font-weight:800; color: var(--accent-emerald); }
+    .item-card .item-equip-btn {
+      background: var(--card-hover); border:1px solid var(--border); color:var(--text-main);
+      font-size:.66rem; font-weight:700; padding:5px 8px; border-radius:8px; cursor:pointer;
+    }
+    .item-card.equipped { border-color: var(--accent-emerald); box-shadow: 0 0 0 1px var(--accent-emerald) inset; }
+    .item-card .item-count { font-size:.64rem; color:var(--text-muted); font-weight:700; }
+
+    .rarity-common { color:#b9c2cc; }
+    .rarity-rare   { color:#6fc3ff; }
+    .rarity-epic   { color:#c896ff; }
+    .rarity-legendary {
+      background: linear-gradient(90deg,#ffd27a,#ff9ec7,#c896ff,#ffd27a); background-size:300% 100%;
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation: chipShine 2.6s linear infinite;
+    }
+    .rarity-super_rare {
+      background: linear-gradient(90deg,#ff5f6d,#ff9966,#ff5f6d); background-size:300% 100%;
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation: chipShine 1.8s linear infinite;
+    }
+    .rarity-secret {
+      background: linear-gradient(90deg,#ff2d55,#ffd27a,#7ef9ff,#c896ff,#ff2d55); background-size:400% 100%;
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation: chipShine 1.1s linear infinite;
+    }
+    .rarity-ultra_secret {
+      background: linear-gradient(90deg,#fff6d0,#ffd700,#fff6d0,#b8860b,#ffd700); background-size:400% 100%;
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation: chipShine 0.9s linear infinite;
+      font-weight:900;
+    }
+    .item-card[data-rarity="common"] { border-color: rgba(185,194,204,.35); }
+    .item-card[data-rarity="rare"] { border-color: rgba(111,195,255,.5); box-shadow: 0 0 8px rgba(111,195,255,.15); }
+    .item-card[data-rarity="epic"] { border-color: rgba(200,150,255,.55); box-shadow: 0 0 10px rgba(200,150,255,.2); }
+    .item-card[data-rarity="legendary"] { border-color: #ffd27a; box-shadow: 0 0 14px rgba(255,210,122,.35); }
+    .item-card[data-rarity="super_rare"] { border-color: #ff7a5c; box-shadow: 0 0 16px rgba(255,95,109,.4); }
+    .item-card[data-rarity="secret"] { border-color: #ffd27a; box-shadow: 0 0 20px rgba(255,45,85,.45), 0 0 8px rgba(126,249,255,.35); animation: criticalPulse 1.8s ease-in-out infinite; }
+    .item-card[data-rarity="ultra_secret"] { border-color: #ffd700; box-shadow: 0 0 26px rgba(255,215,0,.65); animation: criticalPulse 1.3s ease-in-out infinite; }
+
+    /* rarity background tints, used behind reel cells + collection silhouettes */
+    .rarity-bg-common     { background: linear-gradient(160deg, rgba(185,194,204,.16), var(--surface-deep)); }
+    .rarity-bg-rare       { background: linear-gradient(160deg, rgba(111,195,255,.22), var(--surface-deep)); }
+    .rarity-bg-epic       { background: linear-gradient(160deg, rgba(200,150,255,.26), var(--surface-deep)); }
+    .rarity-bg-legendary  { background: linear-gradient(160deg, rgba(255,210,122,.32), var(--surface-deep)); }
+    .rarity-bg-super_rare { background: linear-gradient(160deg, rgba(255,95,109,.34), var(--surface-deep)); }
+    .rarity-bg-secret     { background: linear-gradient(160deg, rgba(255,45,85,.4), rgba(126,249,255,.22), var(--surface-deep)); }
+    .rarity-bg-ultra_secret { background: linear-gradient(160deg, rgba(255,215,0,.55), rgba(184,134,11,.3), var(--surface-deep)); }
+
+    /* ---------------- collection tab (all obtainable accessories, silhouetted) ---------------- */
+    .inventory-grid, .shop-grid, .collection-grid { justify-content: center; }
+    .collection-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:9px; justify-items:center; }
+    .item-card { text-align:center; align-items:center; }
+    .item-card .item-price-row { justify-content:center; }
+    .collection-cell {
+      width:100%; aspect-ratio:1/1; border-radius:12px; border:1px solid var(--border);
+      display:flex; align-items:center; justify-content:center; position:relative; cursor:pointer;
+      transition: transform .15s ease; font-size:1.6rem;
+    }
+    .collection-cell:hover, .collection-cell:active { transform: scale(1.06); }
+    .collection-cell.unowned .cc-emoji { filter: brightness(0) contrast(0); opacity:.9; }
+    .collection-cell.unowned::after {
+      content:'?'; position:absolute; font-size:1.1rem; font-weight:800; color:rgba(255,255,255,.55);
+    }
+    .collection-cell .cc-tooltip {
+      position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
+      background: var(--surface-deep); border:1px solid var(--border); border-radius:10px; padding:8px 10px;
+      font-size:.66rem; line-height:1.35; white-space:nowrap; z-index:5; opacity:0; pointer-events:none;
+      transition: opacity .12s ease; box-shadow: 0 8px 18px rgba(0,0,0,.4);
+    }
+    .collection-cell:hover .cc-tooltip { opacity:1; }
+    .cc-tooltip .cc-name { font-weight:800; color:var(--text-main); display:block; }
+    .cc-tooltip .cc-chance { color:var(--text-muted); }
+
+    /* ---------------- CS:GO-style case opening reel ---------------- */
+    .case-modal-card { background: var(--card-bg); max-width: 480px; width: 100%; }
+    .case-box-title { font-weight:800; font-size:1rem; margin-bottom:14px; text-align:center; }
+    .case-viewport {
+      position:relative; height:110px; overflow:hidden; border-radius:14px;
+      background: var(--surface-deep); border:1px solid var(--border); margin-bottom:18px;
+      -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%);
+              mask-image: linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%);
+    }
+    .case-pointer {
+      position:absolute; top:0; bottom:0; left:50%; width:3px; margin-left:-1.5px;
+      background: var(--accent-amber); z-index:6; box-shadow: 0 0 10px var(--accent-amber);
+    }
+    .case-pointer::before, .case-pointer::after {
+      content:''; position:absolute; left:50%; transform:translateX(-50%); border-style:solid;
+    }
+    .case-pointer::before { top:-1px; border-width:8px 6px 0 6px; border-color: var(--accent-amber) transparent transparent transparent; }
+    .case-pointer::after { bottom:-1px; border-width:0 6px 8px 6px; border-color: transparent transparent var(--accent-amber) transparent; }
+    .case-reel { position:absolute; top:0; left:0; height:100%; display:flex; align-items:center; gap:10px; padding:0 10px; will-change: transform; }
+    .case-cell {
+      flex:0 0 84px; width:84px; height:84px; border-radius:12px; border:1px solid var(--border);
+      display:flex; align-items:center; justify-content:center; font-size:2.1rem; position:relative;
+    }
+    .case-cell.tier-legendary, .case-cell.tier-super_rare, .case-cell.tier-secret { border-color: rgba(255,255,255,.4); }
+    .case-cell.winner-cell { animation: winnerPulse .6s ease .05s 3; }
+    @keyframes winnerPulse { 0%,100% { box-shadow:none; } 50% { box-shadow:0 0 24px rgba(255,255,255,.55); } }
+    .case-reveal { text-align:center; min-height: 74px; }
+    .case-reveal .reveal-item-emoji { font-size:2.6rem; margin: 0 0 6px; }
+    .case-reveal .reveal-item-name { font-size:1rem; }
+    .case-reveal .reveal-item-rarity { margin-bottom: 10px; }
+    .case-reveal.pending { visibility:hidden; }
+    .case-particle-layer { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+    .case-particle {
+      position:absolute; bottom:6px; font-size:1rem; opacity:0; animation: caseParticleFloat 1.1s ease-out forwards;
+    }
+    @keyframes caseParticleFloat {
+      0% { opacity:0; transform: translateY(0) scale(.6); }
+      15% { opacity:1; }
+      100% { opacity:0; transform: translateY(-70px) scale(1.15); }
+    }
+
+    /* ---------------- shop: dedicated modal shell (kept separate from the Past Papers drawer
+       on purpose, so nothing here can ever bleed into .papers-overlay/.papers-drawer) ---------------- */
+    .shop-overlay {
+      position: fixed; inset: 0; z-index: 92; padding: 24px;
+      background: rgba(6,3,5,.72); backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity .25s ease;
+    }
+    .shop-overlay.active { opacity: 1; pointer-events: auto; }
+    .shop-modal {
+      width: min(1060px, 100%); height: min(760px, 100%);
+      background: linear-gradient(175deg, var(--card-bg), var(--surface-deep));
+      border: 1px solid var(--border); border-radius: 26px;
+      box-shadow: 0 30px 80px -20px rgba(0,0,0,.65);
+      display: flex; flex-direction: column; overflow: hidden;
+      transform: scale(.94); opacity: 0;
+      transition: transform .3s cubic-bezier(.2,.9,.3,1.1), opacity .25s ease;
+    }
+    .shop-overlay.active .shop-modal { transform: scale(1); opacity: 1; }
+    .shop-head {
+      padding: 18px 24px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px; position: relative;
+    }
+    .shop-head h2 { font-size: 1.15rem; font-weight: 800; }
+    .shop-tab-row { display:flex; gap:8px; padding:14px 24px 0; flex-shrink:0; }
+    .shop-tab {
+      flex:1; padding: 10px 0; text-align:center; border-radius: 12px 12px 0 0;
+      background: transparent; border:1px solid transparent; color: var(--text-muted);
+      font-weight:700; font-size:.83rem; cursor:pointer; transition: all .15s ease;
+    }
+    .shop-tab.active { background: var(--card-hover); color: var(--text-main); border-color: var(--border); border-bottom-color: var(--card-hover); }
+    .shop-tab:hover:not(.active) { color: var(--text-main); }
+    .shop-drawer-body { flex:1; overflow-y:auto; padding: 18px 24px 28px; }
+
+    /* floating "-N" coin feedback on purchase */
+    .coin-float {
+      position:absolute; left:50%; top:-2px; transform:translateX(-50%);
+      font-size:.75rem; font-weight:800; color:#ff8fa8; white-space:nowrap;
+      animation: coinFloatUp .9s ease forwards; pointer-events:none;
+    }
+    @keyframes coinFloatUp {
+      0% { opacity:0; transform:translate(-50%,0); }
+      15% { opacity:1; }
+      100% { opacity:0; transform:translate(-50%,-26px); }
+    }
+
+    /* ---------------- premium storefront: top row of 5 + Night Market centerpiece ---------------- */
+    .daily-shop-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; gap:10px; flex-wrap:wrap; }
+    .daily-countdown {
+      display:flex; align-items:center; gap:6px; font-size:.72rem; font-weight:800; color: var(--accent-amber);
+      background: var(--surface-deep); border:1px solid var(--border); padding:5px 11px; border-radius:14px;
+    }
+
+    .gshop-grid { display:grid; grid-template-columns: repeat(5, 1fr); gap:14px; margin: 14px 0 28px; }
+    .gshop-card {
+      position:relative; background: linear-gradient(160deg, var(--card-bg), var(--surface-deep));
+      border:1px solid var(--border); border-radius:18px; padding:20px 14px 18px;
+      display:flex; flex-direction:column; align-items:center; text-align:center; gap:5px;
+      overflow:hidden; transition: transform .22s cubic-bezier(.2,.8,.3,1.2), box-shadow .22s ease;
+    }
+    .gshop-card::before {
+      content:''; position:absolute; inset:0; opacity:0; transition:opacity .25s ease; pointer-events:none;
+      background: radial-gradient(circle at 50% 0%, rgba(255,255,255,.14), transparent 60%);
+    }
+    .gshop-card:hover { transform: translateY(-7px) scale(1.015); }
+    .gshop-card:hover::before { opacity:1; }
+    .gshop-card.just-bought { animation: gshopBuyPulse .5s ease; }
+    @keyframes gshopBuyPulse { 0% { transform:scale(1); } 35% { transform:scale(1.05); } 100% { transform:scale(1); } }
+    .gshop-rarity-tag {
+      font-size:.6rem; font-weight:900; text-transform:uppercase; letter-spacing:.5px;
+      padding:3px 9px; border-radius:20px; background: rgba(0,0,0,.32);
+    }
+    .gshop-art { font-size:3rem; margin: 8px 0 2px; filter: drop-shadow(0 6px 14px rgba(0,0,0,.4)); animation: float 3.4s ease-in-out infinite; }
+    .gshop-name { font-size:.88rem; font-weight:800; line-height:1.28; min-height:2.2em; }
+    .gshop-desc { font-size:.66rem; color:var(--text-muted); font-weight:600; margin-top:-3px; }
+    .gshop-price-row { margin-top:6px; }
+    .gshop-price { font-size:.82rem; font-weight:800; color: var(--accent-amber); }
+    .gshop-buy-btn {
+      margin-top:8px; width:100%; background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+      border:none; color:#fff; font-size:.72rem; font-weight:800; padding:8px 0; border-radius:10px; cursor:pointer;
+      transition: transform .15s ease, filter .15s ease;
+    }
+    .gshop-buy-btn:hover:not(:disabled) { transform: scale(1.035); filter:brightness(1.06); }
+    .gshop-buy-btn:active:not(:disabled) { transform: scale(.95); }
+    .gshop-buy-btn:disabled { background: var(--border); cursor:not-allowed; opacity:.55; }
+    .gshop-owned { margin-top:8px; font-size:.7rem; font-weight:800; color: var(--accent-emerald); }
+
+    .gshop-card[data-rarity="common"]       { border-color: rgba(185,194,204,.4); }
+    .gshop-card[data-rarity="rare"]         { border-color: rgba(111,195,255,.55); box-shadow: 0 0 14px rgba(111,195,255,.16); }
+    .gshop-card[data-rarity="epic"]         { border-color: rgba(200,150,255,.6); box-shadow: 0 0 18px rgba(200,150,255,.22); }
+    .gshop-card[data-rarity="legendary"]    { border-color: #ffd27a; box-shadow: 0 0 22px rgba(255,210,122,.32); }
+    .gshop-card[data-rarity="super_rare"]   { border-color: #ff7a5c; box-shadow: 0 0 24px rgba(255,95,109,.36); }
+    .gshop-card[data-rarity="secret"]       { border-color: #ffd27a; box-shadow: 0 0 26px rgba(255,45,85,.4), 0 0 10px rgba(126,249,255,.3); animation: criticalPulse 2.2s ease-in-out infinite; }
+    .gshop-card[data-rarity="ultra_secret"] { border-color: #ffd700; box-shadow: 0 0 30px rgba(255,215,0,.55); animation: criticalPulse 1.7s ease-in-out infinite; }
+    .gshop-card[data-rarity="legendary"]:hover   { box-shadow: 0 0 30px rgba(255,210,122,.5); }
+    .gshop-card[data-rarity="super_rare"]:hover  { box-shadow: 0 0 32px rgba(255,95,109,.5); }
+    .gshop-card[data-rarity="epic"]:hover        { box-shadow: 0 0 26px rgba(200,150,255,.34); }
+    .gshop-card[data-rarity="rare"]:hover        { box-shadow: 0 0 20px rgba(111,195,255,.26); }
+
+    /* ---------------- Night Market: the centerpiece ---------------- */
+    .gshop-nightmarket {
+      position:relative; border-radius:22px; border:1px solid var(--border); overflow:hidden; isolation:isolate;
+      padding: 28px 24px; min-height: 220px; display:flex; align-items:center; justify-content:center;
+      background: linear-gradient(160deg, #1c0f18, #0c0710);
+      transition: box-shadow .3s ease, border-color .3s ease, transform .15s ease;
+    }
+    .gshop-nightmarket.locked { cursor:pointer; }
+    .gshop-nightmarket[data-rarity="common"]      { border-color:rgba(185,194,204,.65); box-shadow:0 0 28px rgba(185,194,204,.18); }
+    .gshop-nightmarket[data-rarity="rare"]        { border-color:rgba(111,195,255,.78); box-shadow:0 0 34px rgba(111,195,255,.28); }
+    .gshop-nightmarket[data-rarity="epic"]        { border-color:rgba(190,120,255,.82); box-shadow:0 0 40px rgba(190,120,255,.34); }
+    .gshop-nightmarket[data-rarity="legendary"]   { border-color:rgba(255,184,74,.9); box-shadow:0 0 46px rgba(255,184,74,.38); }
+    .gshop-nightmarket[data-rarity="super_rare"]  { border-color:rgba(255,105,205,.92); box-shadow:0 0 52px rgba(255,105,205,.42); }
+    .gshop-nightmarket[data-rarity="secret"]      { border-color:rgba(255,92,150,.98); box-shadow:0 0 60px rgba(255,92,150,.48); }
+    .gshop-nightmarket[data-rarity="ultra_secret"]{ border-color:#ffd700; box-shadow:0 0 72px rgba(255,215,0,.62), inset 0 0 42px rgba(255,215,0,.12); }
+    .gshop-nightmarket[data-rarity="epic"] .nm-ambient        { background:radial-gradient(circle at 20% 20%,rgba(190,120,255,.42),transparent 55%),radial-gradient(circle at 80% 80%,rgba(120,70,255,.28),transparent 55%); }
+    .gshop-nightmarket[data-rarity="legendary"] .nm-ambient   { background:radial-gradient(circle at 20% 20%,rgba(255,184,74,.46),transparent 55%),radial-gradient(circle at 80% 80%,rgba(255,110,70,.28),transparent 55%); }
+    .gshop-nightmarket[data-rarity="super_rare"] .nm-ambient  { background:radial-gradient(circle at 20% 20%,rgba(255,105,205,.5),transparent 55%),radial-gradient(circle at 80% 80%,rgba(255,60,150,.3),transparent 55%); }
+    .gshop-nightmarket[data-rarity="secret"] .nm-ambient      { background:radial-gradient(circle at 20% 20%,rgba(255,92,150,.55),transparent 55%),radial-gradient(circle at 80% 80%,rgba(180,40,100,.34),transparent 55%); }
+    .gshop-nightmarket[data-rarity="ultra_secret"] .nm-ambient{ background:radial-gradient(circle at 20% 20%,rgba(255,215,0,.58),transparent 55%),radial-gradient(circle at 80% 80%,rgba(255,130,0,.35),transparent 55%); }
+    .gshop-nightmarket.pressed { transform: scale(.98); }
+    .nm-ambient {
+      position:absolute; inset:-30%; z-index:-1; opacity:.7;
+      background: radial-gradient(circle at 20% 20%, rgba(217,165,102,.25), transparent 55%),
+                  radial-gradient(circle at 80% 80%, rgba(255,158,199,.22), transparent 55%);
+      animation: nmAmbientDrift 9s ease-in-out infinite alternate;
+    }
+    @keyframes nmAmbientDrift { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(3%,-3%) scale(1.08); } }
+    .nm-content { position:relative; z-index:2; width:100%; max-width:680px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:6px; }
+    .nm-badge { font-size:.78rem; font-weight:900; letter-spacing:.6px; color:#ffd27a; text-shadow: 0 0 12px rgba(255,210,122,.5); }
+    .nm-mystery-icon { font-size:3.2rem; margin:10px 0 4px; animation: float 3.6s ease-in-out infinite; opacity:.85; transition: transform .2s ease; }
+    .gshop-nightmarket.locked:hover .nm-mystery-icon { transform: scale(1.08) rotate(-3deg); }
+    .nm-tagline { font-size:.84rem; color:var(--text-muted); margin-bottom:6px; }
+    .nm-mystery-price { font-size:1.6rem; font-weight:900; letter-spacing:2px; color: var(--text-muted); margin-bottom:14px; }
+    .nm-reveal-btn {
+      background: linear-gradient(135deg, #ffd27a, #ff9ec7); border:none; color:#2a160e;
+      font-weight:900; font-size:.86rem; letter-spacing:.5px; padding:12px 34px; border-radius:14px;
+      cursor:pointer; box-shadow: 0 10px 28px rgba(255,158,199,.3); transition: transform .18s ease, box-shadow .18s ease;
+    }
+    .nm-reveal-btn:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 14px 34px rgba(255,158,199,.42); }
+
+    .gshop-nightmarket.revealing::after, .gshop-nightmarket.dark-flash::after {
+      content:''; position:absolute; inset:0; z-index:1; background:rgba(0,0,0,.35); backdrop-filter: blur(2px);
+      animation: nmDarkenFade 1.4s ease forwards;
+    }
+    @keyframes nmDarkenFade { 0% { opacity:0; } 30% { opacity:1; } 100% { opacity:0; } }
+
+    .nm-shimmer {
+      position:absolute; inset:0; z-index:3; pointer-events:none; opacity:0;
+      background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,.5) 48%, rgba(255,255,255,.5) 52%, transparent 70%);
+      background-size: 300% 100%; background-position: 150% 0;
+    }
+    .gshop-nightmarket.revealing .nm-shimmer { animation: nmShimmerSweep 1.1s ease-in-out; }
+    @keyframes nmShimmerSweep {
+      0% { background-position: 150% 0; opacity:0; } 10% { opacity:1; } 90% { opacity:1; } 100% { background-position:-60% 0; opacity:0; }
+    }
+    .nm-particle-layer { position:absolute; inset:0; z-index:4; pointer-events:none; overflow:hidden; }
+    .nm-particle { position:absolute; bottom:10%; font-size:1.1rem; opacity:0; animation: nmParticleFloat 1.5s ease-out forwards; }
+    @keyframes nmParticleFloat {
+      0% { opacity:0; transform: translateY(0) scale(.5); } 20% { opacity:1; } 100% { opacity:0; transform: translateY(-120px) scale(1.2); }
+    }
+
+    .nm-step { opacity:0; transform: translateY(10px); filter: blur(3px); transition: opacity .5s ease, transform .5s ease, filter .5s ease; }
+    .nm-step.shown { opacity:1; transform: translateY(0); filter: blur(0); }
+    .nm-rarity-tag { font-size:.86rem; font-weight:900; text-transform:uppercase; letter-spacing:.6px; margin-bottom:6px; }
+    .nm-art { font-size:3.6rem; margin: 4px 0 8px; filter: drop-shadow(0 10px 22px rgba(0,0,0,.45)); }
+    .nm-name { font-size:1.15rem; font-weight:800; margin-bottom:6px; }
+    .nm-price-row { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+    .nm-price-original { font-size:.85rem; color:var(--text-muted); text-decoration: line-through; font-weight:700; }
+    .nm-price-final { font-size:1.25rem; font-weight:900; color:#ffd27a; }
+    .nm-discount-badge {
+      font-size:.68rem; font-weight:900; color:#3a2508; background: linear-gradient(135deg,#ffd27a,#ff9ec7);
+      padding:3px 9px; border-radius:20px;
+    }
+    .nm-buy-btn {
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue)); border:none; color:#fff;
+      font-weight:900; font-size:.86rem; letter-spacing:.4px; padding:12px 38px; border-radius:14px; cursor:pointer;
+      transition: transform .15s ease, filter .15s ease;
+    }
+    .nm-buy-btn:hover:not(:disabled) { transform: translateY(-2px) scale(1.02); filter:brightness(1.06); }
+    .nm-buy-btn:active:not(:disabled) { transform: scale(.95); }
+    .nm-buy-btn:disabled { opacity:.5; cursor:not-allowed; }
+    .nm-owned-badge { font-size:.8rem; font-weight:900; color: var(--accent-emerald); letter-spacing:.4px; }
+
+    .gshop-nightmarket[data-rarity="common"].settled       { border-color: rgba(185,194,204,.5); box-shadow: 0 0 30px rgba(185,194,204,.14); }
+    .gshop-nightmarket[data-rarity="rare"].settled          { border-color: rgba(111,195,255,.6); box-shadow: 0 0 36px rgba(111,195,255,.22); }
+    .gshop-nightmarket[data-rarity="epic"].settled          { border-color: rgba(200,150,255,.65); box-shadow: 0 0 42px rgba(200,150,255,.3); }
+    .gshop-nightmarket[data-rarity="legendary"].settled     { border-color: #ffd27a; box-shadow: 0 0 50px rgba(255,210,122,.4); animation: nmGlowPulse 2.6s ease-in-out infinite; }
+    .gshop-nightmarket[data-rarity="super_rare"].settled    { border-color: #ff7a5c; box-shadow: 0 0 54px rgba(255,95,109,.42); animation: nmGlowPulse 2.2s ease-in-out infinite; }
+    .gshop-nightmarket[data-rarity="secret"].settled        { border-color: #ffd27a; box-shadow: 0 0 60px rgba(255,45,85,.45), 0 0 18px rgba(126,249,255,.35); animation: nmGlowPulse 1.8s ease-in-out infinite; }
+    .gshop-nightmarket[data-rarity="ultra_secret"].settled  { border-color: #ffd700; box-shadow: 0 0 70px rgba(255,215,0,.6); animation: nmGlowPulse 1.4s ease-in-out infinite; }
+    @keyframes nmGlowPulse { 0%,100% { filter: brightness(1); } 50% { filter: brightness(1.18); } }
+    .gshop-nightmarket.inspect-pulse .nm-content { animation: nmInspectPulse .5s ease; }
+    @keyframes nmInspectPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+
+    .inventory-filter-row { display:flex; gap:6px; flex-wrap:wrap; justify-content:center; padding-bottom:10px; margin-bottom:6px; }
+    .shop-section-title.centered { justify-content:center; text-align:center; }
+    .inventory-sort-row { display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:12px; }
+    .inventory-sort-row label { font-size:.72rem; color:var(--text-muted); font-weight:700; }
+    .inventory-sort-row select {
+      background: var(--surface-deep); border:1px solid var(--border); color:var(--text-main);
+      font-size:.74rem; font-weight:700; padding:6px 10px; border-radius:10px;
+    }
+    .inv-filter-chip {
+      flex-shrink:0; background: var(--surface-deep); border:1px solid var(--border); color:var(--text-muted);
+      font-size:.72rem; font-weight:700; padding:6px 11px; border-radius:14px; cursor:pointer; transition: all .15s ease;
+    }
+    .inv-filter-chip.active { background: var(--card-hover); color:var(--text-main); border-color:var(--accent-purple); }
+    .shop-empty { text-align:center; color:var(--text-muted); font-size:.82rem; padding:30px 10px; }
+
+    .reveal-card { background: var(--card-bg); }
+    .reveal-item-emoji { font-size:3.6rem; display:block; margin:6px 0 10px; }
+    .reveal-item-name { font-size:1.15rem; font-weight:800; margin-bottom:4px; }
+    .reveal-item-rarity { font-size:.85rem; font-weight:800; text-transform:uppercase; letter-spacing:.5px; margin-bottom:18px; }
+
     .missed-review-list { list-style:none; text-align:left; max-height:220px; overflow-y:auto; margin: 4px 0 22px 0; display:flex; flex-direction:column; gap:6px; }
     .missed-review-list li {
       font-size:.85rem; background: rgba(224,96,126,0.1); border:1px solid rgba(224,96,126,0.3);
@@ -711,6 +1078,19 @@
 
       .papers-drawer { width: 100vw; }
 
+      .shop-overlay { padding: 0; }
+      .shop-modal { width: 100vw; height: 100vh; height: 100dvh; border-radius: 0; }
+      .shop-tab-row { padding: 12px 14px 0; }
+      .shop-drawer-body { padding: 14px 14px 24px; }
+      .gshop-grid {
+        grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(130px, 40vw);
+        overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; margin: 14px -4px 24px;
+      }
+      .gshop-card { scroll-snap-align: start; padding: 14px 10px 12px; }
+      .gshop-nightmarket { padding: 22px 16px; min-height: 190px; }
+      .nm-art { font-size: 3rem; }
+      .nm-name { font-size: 1rem; }
+
       .add-task-row { flex-direction: column; align-items: stretch; }
       .add-task-select { width: 100%; }
       .add-task-btn { width: 100%; padding: 10px 0; }
@@ -747,9 +1127,9 @@
         <div class="progress-bar-container">
           <div class="progress-bar-fill" id="xpBar"></div>
         </div>
-        <div class="streak-row">
-          <span class="streak-flame">🔥</span>
-          <span class="streak-num" id="streakNum">0</span> day streak
+        <div class="streak-row" style="justify-content:space-between;">
+          <span><span class="streak-flame">🔥</span> <span class="streak-num" id="streakNum">0</span> day streak</span>
+          <span class="coin-pill" id="coinPill" title="Petal Coins — spend them in the Shop"><span class="coin-emoji">🌸</span><span id="coinCount">0</span></span>
         </div>
         <div class="building-display">
           <div class="building-icon" id="townBuildingIcon">🌱</div>
@@ -775,6 +1155,7 @@
         <div class="main-actions" aria-label="Study HQ actions">
           <button class="header-action secondary" id="stackDaysBtn" title="Create a range of days"><span>▦</span><span>Stack Days</span></button>
           <button class="header-action" id="papersBtn" title="Open past papers"><span>📄</span><span>Past Papers</span></button>
+          <button class="header-action" id="shopBtn" title="Open the shop"><span>🛍️</span><span>Shop</span></button>
           <button class="icon-btn" id="settingsBtn" title="Appearance & settings">⚙️</button>
         </div>
       </header>
@@ -906,6 +1287,69 @@
         <button class="papers-tab" data-subj="chem">⚗️ Chem</button>
       </div>
       <div class="papers-body" id="papersBody"></div>
+    </div>
+  </div>
+
+  <div class="shop-overlay" id="shopOverlay">
+    <div class="shop-modal">
+      <div class="shop-head">
+        <h2>🛍️ Shop</h2>
+        <span class="coin-pill"><span class="coin-emoji">🌸</span><span id="shopCoinCount">0</span></span>
+        <button class="papers-close" id="shopCloseBtn">✕</button>
+      </div>
+      <div class="shop-tab-row" id="shopTabs">
+        <button class="shop-tab active" data-shop-tab="store">🏬 Store</button>
+        <button class="shop-tab" data-shop-tab="boxes">🎁 Boxes</button>
+        <button class="shop-tab" data-shop-tab="collection">📖 Collection</button>
+        <button class="shop-tab" data-shop-tab="inventory">🎒 Inventory</button>
+      </div>
+      <div class="shop-drawer-body" id="shopBody"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="rewardModal">
+    <div class="modal-card reveal-card">
+      <div class="reveal-item-emoji" id="rewardEmoji">🎁</div>
+      <h2 id="rewardTitle">You got something!</h2>
+      <p class="reveal-item-name" id="rewardName"></p>
+      <p class="reveal-item-rarity" id="rewardRarity"></p>
+      <button class="modal-btn" onclick="closeRewardModal()">Nice!</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="caseModal">
+    <div class="modal-card case-modal-card">
+      <div class="case-box-title" id="caseBoxTitle">Opening box…</div>
+      <div class="case-viewport">
+        <div class="case-pointer"></div>
+        <div class="case-reel" id="caseReel"></div>
+      </div>
+      <div class="case-reveal pending" id="caseReveal">
+        <div class="reveal-item-emoji" id="caseRewardEmoji">🎁</div>
+        <p class="reveal-item-name" id="caseRewardName"></p>
+        <p class="reveal-item-rarity" id="caseRewardRarity"></p>
+      </div>
+      <button class="modal-btn" id="caseCloseBtn" style="visibility:hidden;">Nice!</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal-card" style="text-align:left;">
+      <h2 style="text-align:center;" id="confirmTitle">Are you sure?</h2>
+      <p style="text-align:center;" id="confirmMessage"></p>
+      <div style="display:flex;gap:8px;">
+        <button class="modal-btn warn" id="confirmYesBtn" style="flex:1;">Yes, delete</button>
+        <button class="modal-btn" id="confirmNoBtn" style="flex:1;background:var(--border);">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="infoModal">
+    <div class="modal-card">
+      <div class="modal-icon" id="infoModalIcon">💡</div>
+      <h2 id="infoModalTitle">Heads up</h2>
+      <p id="infoModalMessage"></p>
+      <button class="modal-btn" id="infoModalOkBtn">Got it</button>
     </div>
   </div>
 
@@ -1078,30 +1522,36 @@
       saveDays(); saveTasks(); rebuildDataset();
     }
 
+    // A day can only be deleted once it has no tasks left in it — this stops
+    // whole days (and the progress/XP tied to them) from vanishing by accident.
+    // Delete the tasks first (or complete them), then the empty day can go.
     function deleteDay(dayId) {
       const existingTasks = tasksByDate[dayId] || [];
-      // cascade: wipe every task's progress + missed flag so nothing lingers behind
-      existingTasks.forEach(t => {
-        delete userProgress[t.id];
-        delete meta.missed[t.id];
-      });
+      if (existingTasks.length > 0) {
+        return { ok:false, reason:'has-tasks', count: existingTasks.length };
+      }
       delete tasksByDate[dayId];
       delete daysMeta[dayId];
       meta.pendingReview = (meta.pendingReview || []).filter(id => id !== dayId);
-      saveDays(); saveTasks(); saveProgress(); saveMeta();
+      saveDays(); saveTasks(); saveMeta();
       rebuildDataset();
       return { ok:true };
     }
 
     function deleteTask(dayId, taskId) {
+      let removed = false;
       if (tasksByDate[dayId]) {
+        const before = tasksByDate[dayId].length;
         tasksByDate[dayId] = tasksByDate[dayId].filter(t => t.id !== taskId);
+        removed = tasksByDate[dayId].length !== before;
         saveTasks();
       }
       delete userProgress[taskId];
       delete meta.missed[taskId];
+      delete meta.missedSince[taskId];
       saveProgress(); saveMeta();
       rebuildDataset();
+      return { ok: removed };
     }
 
 
@@ -1114,6 +1564,953 @@
     let meta = JSON.parse(localStorage.getItem(META_KEY)) || {
       lastActiveDate: null, missed: {}, streak: 0, locked: false, pendingReview: [], mini: false
     };
+    // missedSince: taskId -> dayId it was first flagged missed on (used to compute the daily XP decay).
+    // highestLevelPaid: the highest level we've already paid coin rewards up to (a watermark, not a
+    // running total) — this is what stops the "delete task / let XP dip / climb back up" coin exploit,
+    // because coins are only ever paid the first time a level threshold is crossed, never again.
+    if (!meta.missedSince) meta.missedSince = {};
+    if (typeof meta.highestLevelPaid !== 'number') meta.highestLevelPaid = 1;
+
+    /* ============================================================
+       ECONOMY — XP, Petal Coins, Accessories, Shop & Inventory
+       ============================================================ */
+    const COINS_KEY = 'hafsah_coins_v1';
+    const INVENTORY_KEY = 'hafsah_inventory_v1';
+    const EQUIPPED_KEY = 'hafsah_equipped_v1';
+    const PAPER_XP_KEY = 'hafsah_paper_xp_v1';
+    const DAILY_SHOP_KEY = 'hafsah_dailyshop_v1';
+
+    let coins = parseInt(localStorage.getItem(COINS_KEY), 10) || 0;
+    let inventory = JSON.parse(localStorage.getItem(INVENTORY_KEY)) || {};   // itemId -> count owned
+    let equipped = JSON.parse(localStorage.getItem(EQUIPPED_KEY)) || {};     // category -> equipped itemId
+    // paperXPState: paperKey -> cumulative XP already paid out for that paper. Only the *delta* above
+    // this stored value is ever paid again, so cycling a paper's mastery dots back to 0 and re-clicking
+    // through them can never re-earn XP that's already been banked.
+    let paperXPState = JSON.parse(localStorage.getItem(PAPER_XP_KEY)) || {};
+    let dailyShopState = JSON.parse(localStorage.getItem(DAILY_SHOP_KEY)) || null;
+
+    function saveCoins() { localStorage.setItem(COINS_KEY, String(coins)); }
+    function saveInventory() { localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory)); }
+    function saveEquipped() { localStorage.setItem(EQUIPPED_KEY, JSON.stringify(equipped)); }
+    function savePaperXP() { localStorage.setItem(PAPER_XP_KEY, JSON.stringify(paperXPState)); }
+    function saveDailyShop() { localStorage.setItem(DAILY_SHOP_KEY, JSON.stringify(dailyShopState)); }
+
+    const TASK_XP = 5;                                  // a completed checklist task
+    const PAPER_CUMULATIVE_XP = { 1: 10, 2: 30, 3: 60 }; // 1st done=+10, redone=+20 more (30 total), mastered=+30 more (60 total)
+    const MISSED_DAILY_PENALTY = 2;                      // XP eaten per day a task sits missed & unticked
+    const MAX_DECAY_DAYS = 15;                           // caps how much one forgotten task can drain
+
+    function parseDayId(id) {
+      const m = (id || '').match(/^date-(\d+)-(\d+)-(\d+)$/);
+      return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null;
+    }
+
+    // Every day a missed task stays unticked, it quietly eats into your XP/level — exactly like the
+    // "missed" flag says: it stays flagged, and keeps costing you, until you tick it.
+    function computeMissedPenalty() {
+      let penalty = 0;
+      const todayD = logicalNow();
+      Object.keys(meta.missed).forEach(taskId => {
+        if (!meta.missed[taskId] || userProgress[taskId]) return;
+        const sinceD = parseDayId(meta.missedSince[taskId]);
+        if (!sinceD) return;
+        const days = Math.max(0, Math.round((todayD - sinceD) / 86400000));
+        penalty += Math.min(days, MAX_DECAY_DAYS) * MISSED_DAILY_PENALTY;
+      });
+      return penalty;
+    }
+
+    // Pure calculation, no side effects — safe to call before AND after a state change so callers can
+    // compare "level before" vs "level after" without accidentally paying out coins twice.
+    function computeXPBreakdown() {
+      const completedCount = Object.values(userProgress).filter(Boolean).length;
+      const taskXP = completedCount * TASK_XP;
+      const paperXP = Object.values(paperXPState).reduce((a, b) => a + b, 0);
+      const penalty = computeMissedPenalty();
+      const totalXP = Math.max(0, taskXP + paperXP - penalty);
+      return { totalXP, currentLevel: Math.floor(totalXP / 100) + 1, currentLevelXP: totalXP % 100 };
+    }
+
+    // Coin reward grows the higher your level is: 5/level for lvls 1-5, 10/level for 6-10, 15/level for 11-15, etc.
+    function coinsForLevel(level) { return 5 * Math.ceil(level / 5); }
+
+    // Pays coins the FIRST time (and only the first time) a level threshold is crossed. meta.highestLevelPaid
+    // is a one-way watermark — XP dipping back down (missed-task decay, deleting/unticking tasks) and then
+    // climbing back to a level it already reached will never pay out again. This is what closes off the
+    // "infinite coins" loop the delete/degrade interaction would otherwise open up.
+    function settleLevelCoins(newLevel) {
+      if (newLevel <= meta.highestLevelPaid) return 0;
+      let earned = 0;
+      for (let l = meta.highestLevelPaid + 1; l <= newLevel; l++) earned += coinsForLevel(l);
+      meta.highestLevelPaid = newLevel;
+      coins += earned;
+      saveMeta(); saveCoins();
+      return earned;
+    }
+
+    // Awards the delta between what this specific paper has already earned and what its new mastery
+    // dot is worth. Resetting a paper's dot back to 0 never removes banked XP, and re-clicking back up
+    // to a level it already hit never re-pays it — so spamming the dot can't farm XP.
+    function awardPaperXP(key, newLvl) {
+      const targetCum = newLvl > 0 ? (PAPER_CUMULATIVE_XP[newLvl] || 0) : 0;
+      const already = paperXPState[key] || 0;
+      if (targetCum > already) {
+        paperXPState[key] = targetCum;
+        savePaperXP();
+        return targetCum - already;
+      }
+      return 0;
+    }
+
+    /* ---------------- accessories catalogue ---------------- */
+    // Six rarity tiers now, CS:GO-style: everyday pulls are common, and the odds
+    // fall off a cliff the further up you go — a Secret is a genuine "whoa" moment.
+    // ultra_secret sits above everything else — 0.05% base weight, and since premium/elite
+    // boxes re-roll anything below their floor (see rollRarity), the *remaining* pool shrinks
+    // for those boxes, which lifts an ultra_secret's relative odds without ever making it common.
+    const RARITY_WEIGHTS = { common: 46, rare: 27, epic: 15, legendary: 7, super_rare: 4, secret: 0.95, ultra_secret: 0.05 };
+    const RARITY_ORDER = ['common', 'rare', 'epic', 'legendary', 'super_rare', 'secret', 'ultra_secret'];
+    const RARITY_LABELS = { common: 'Common', rare: 'Rare', epic: 'Epic', legendary: 'Legendary', super_rare: 'Super Rare', secret: 'Secret', ultra_secret: 'Ultra Secret' };
+    const DAILY_SHOP_PRICE = { common: 10, rare: 20, epic: 40, legendary: 80, super_rare: 140, secret: 260, ultra_secret: 999 };
+    const DAILY_SHOP_SIZE = 5;
+
+    // Regular shop (the 5 featured cards) permanently runs 10% over the base DAILY_SHOP_PRICE table —
+    // buying direct costs more than the Night Market's deal. Computed here, once, so nobody ever has
+    // to hand-edit individual item prices to keep the markup consistent.
+    const SHOP_MARKUP = 1.10;
+    function shopPrice(basePrice) { return Math.round(basePrice * SHOP_MARKUP); }
+
+    // Box catalogue: each box has a cost, which gender pool it pulls from ('mixed' = both),
+    // and an optional minRarity floor that re-rolls any pull below that tier (so premium boxes
+    // are genuinely worth the extra coins, not just cosmetic).
+    const MYSTERY_BOXES = {
+      girly:   { label: "Girly Box",        emoji: '🎀', cost: 35,  gender: 'girly', minRarity: null,      desc: "One accessory from the full girly collection." },
+      men:     { label: "Men's Box",        emoji: '🧢', cost: 35,  gender: 'men',   minRarity: null,      desc: "One accessory from the full men's collection." },
+      mixed:   { label: "Mystery Box",      emoji: '🎁', cost: 20,  gender: 'mixed', minRarity: null,      desc: "Cheaper, but it could come from either collection." },
+      premium: { label: "Premium Box",      emoji: '💎', cost: 90,  gender: 'mixed', minRarity: 'epic',    desc: "Guaranteed Epic or better." },
+      elite:   { label: "Elite Box",        emoji: '👑', cost: 220, gender: 'mixed', minRarity: 'super_rare', desc: "Guaranteed Super Rare or better — this is where Secrets live." }
+    };
+
+    const ACCESSORY_CATEGORIES = [
+      { key: 'hair',     label: 'Hair',     girlyEmoji: '💇‍♀️', boysEmoji: '💇‍♂️' },
+      { key: 'headwear', label: 'Headwear', girlyEmoji: '🎀',   boysEmoji: '🧢' },
+      { key: 'outfit',   label: 'Outfit',   girlyEmoji: '👗',   boysEmoji: '🧥' },
+      { key: 'shoes',    label: 'Shoes',    girlyEmoji: '👠',   boysEmoji: '👟' },
+      { key: 'jewelry',  label: 'Jewelry',  girlyEmoji: '💍',   boysEmoji: '⛓️' },
+      { key: 'eyewear',  label: 'Eyewear',  girlyEmoji: '😎',   boysEmoji: '🕶️' },
+      { key: 'pet',      label: 'Pet',      girlyEmoji: '🐰',   boysEmoji: '🐺' },
+      { key: 'aura',     label: 'Aura',     girlyEmoji: '🌸',   boysEmoji: '⚡' }
+    ];
+
+    // 13 names per category per gender: 6 common / 4 rare / 2 epic / 1 legendary
+    const ACCESSORY_NAMES = {
+      girly: {
+        hair: [['Messy Bun','common'],['Loose Waves','common'],['Twin Braids','common'],['Side Ponytail','common'],['Straight & Sleek','common'],['Curly Bob','common'],
+               ['Pastel Ombré','rare'],['Glitter Streaks','rare'],['Half-Up Space Buns','rare'],['Cascading Curls','rare'],
+               ['Holographic Waves','epic'],['Starlight Braid','epic'],
+               ['Celestial Galaxy Hair','legendary'],['Nebula-Spun Locks','super_rare'],['Timeless Starweave Hair','super_rare'],['??? Origin Hair','secret']],
+        headwear: [['Daisy Headband','common'],['Bow Clip','common'],['Knit Beanie','common'],['Sun Hat','common'],['Ribbon Bow','common'],['Cat-Ear Clip','common'],
+               ['Pearl Tiara','rare'],['Butterfly Crown','rare'],['Rose Gold Circlet','rare'],['Star Barrette Set','rare'],
+               ['Moonstone Tiara','epic'],['Aurora Flower Crown','epic'],
+               ['Crystal Empress Crown','legendary'],['Eclipse Diadem','super_rare'],['Everbloom Crown','super_rare'],['??? Origin Crown','secret']],
+        outfit: [['Floral Sundress','common'],['Denim Overalls','common'],['Cozy Cardigan','common'],['Pleated Skirt Set','common'],['Striped Romper','common'],['Basic Tee & Jeans','common'],
+               ['Holographic Dress','rare'],['Moonlit Sailor Fit','rare'],['Cottagecore Set','rare'],['Pastel Puffer Coat','rare'],
+               ['Aurora-Threaded Gown','epic'],['Starlight Ballgown','epic'],
+               ['Celestial Phoenix Gown','legendary'],['Void Nebula Gown','super_rare'],['Eternal Bloom Gown','super_rare'],['??? Origin Gown','secret']],
+        shoes: [['Canvas Sneakers','common'],['Ballet Flats','common'],['Strappy Sandals','common'],['Ankle Boots','common'],['Mary Janes','common'],['Slip-On Loafers','common'],
+               ['Glitter Platforms','rare'],['Holographic Sneakers','rare'],['Pearl-Strap Heels','rare'],['Rainbow Jellies','rare'],
+               ['Cloud-Walker Heels','epic'],['Starlight Slippers','epic'],
+               ['Glass Slipper of Destiny','legendary'],['Comet-Trail Heels','super_rare'],['Everdawn Slippers','super_rare'],['??? Origin Shoes','secret']],
+        jewelry: [['Charm Bracelet','common'],['Stud Earrings','common'],['Layered Necklace','common'],['Ring Stack','common'],['Scrunchie Set','common'],['Simple Anklet','common'],
+               ['Heart Locket','rare'],['Pearl Drop Earrings','rare'],['Rose Quartz Bracelet','rare'],['Butterfly Ring Set','rare'],
+               ['Moonstone Necklace','epic'],['Aurora Gem Bracelet','epic'],
+               ['Crown Jewel Necklace','legendary'],['Eclipse Gem Choker','super_rare'],['Starbound Heirloom','super_rare'],['??? Origin Jewel','secret']],
+        eyewear: [['Round Glasses','common'],['Cat-Eye Sunnies','common'],['Heart Sunglasses','common'],['Reading Glasses','common'],['Tinted Shades','common'],['Clear Frame Glasses','common'],
+               ['Glitter Cat-Eye Shades','rare'],['Holographic Visor','rare'],['Pearl-Rim Glasses','rare'],['Star-Shaped Sunnies','rare'],
+               ['Aurora Lens Shades','epic'],['Moonlit Visor','epic'],
+               ['Diamond-Cut Starlight Shades','legendary'],['Nebula Prism Shades','super_rare'],['Everdusk Visor','super_rare'],['??? Origin Shades','secret']],
+        pet: [['Kitten','common'],['Bunny','common'],['Baby Chick','common'],['Puppy','common'],['Hamster','common'],['Duckling','common'],
+               ['Fox Cub','rare'],['Baby Deer','rare'],['Unicorn Foal','rare'],['Butterfly Fairy','rare'],
+               ['Sakura Spirit Fox','epic'],['Moon Rabbit','epic'],
+               ['Baby Phoenix','legendary'],['Nebula Kitsune','super_rare'],['Starlight Alicorn','super_rare'],['??? Origin Companion','secret']],
+        aura: [['Pastel Sparkles','common'],['Soft Glow','common'],['Flower Petal Trail','common'],['Bubble Trail','common'],['Rainbow Shimmer','common'],['Heart Confetti','common'],
+               ['Glitter Storm','rare'],['Cherry Blossom Swirl','rare'],['Cotton Candy Clouds','rare'],['Star Trail','rare'],
+               ['Aurora Borealis Aura','epic'],['Galaxy Swirl','epic'],
+               ['Celestial Goddess Aura','legendary'],['Void Bloom Aura','super_rare'],['Everdawn Radiance','super_rare'],['??? Origin Aura','secret']]
+      },
+      men: {
+        hair: [['Buzz Cut','common'],['Classic Fade','common'],['Textured Crop','common'],['Side Part','common'],['Messy Quiff','common'],['Slick Back','common'],
+               ['Frosted Tips','rare'],['Undercut Swirl','rare'],['Man Bun Deluxe','rare'],['Silver Fox Streak','rare'],
+               ['Neon Lightning Cut','epic'],['Molten Gold Fade','epic'],
+               ['Phoenix Flame Mohawk','legendary'],['Voidsteel Crest Cut','super_rare'],['Eternal Ember Fade','super_rare'],['??? Origin Hairline','secret']],
+        headwear: [['Baseball Cap','common'],['Beanie','common'],['Flat Cap','common'],['Bandana','common'],['Fedora','common'],['Snapback','common'],
+               ['Chrome Visor','rare'],['Spiked Crown','rare'],['Leather Aviator Cap','rare'],['Gold Chain Cap','rare'],
+               ['Dragon Horn Helm','epic'],['Storm Cloud Crown','epic'],
+               ["Obsidian King's Crown",'legendary'],['Warlord Eclipse Helm','super_rare'],['Titan Crest Crown','super_rare'],['??? Origin Helm','secret']],
+        outfit: [['Graphic Tee & Jeans','common'],['Bomber Jacket','common'],['Flannel Fit','common'],['Cargo Set','common'],['Hoodie Combo','common'],['Track Suit','common'],
+               ['Neon Windbreaker','rare'],['Chrome Vest','rare'],['Street Racer Fit','rare'],['Varsity Jacket Deluxe','rare'],
+               ['Molten Armor Set','epic'],['Storm Rider Coat','epic'],
+               ['Dragon Emperor Armor','legendary'],['Voidplate Warsuit','super_rare'],['Titanfall Regalia','super_rare'],['??? Origin Armor','secret']],
+        shoes: [['Classic Sneakers','common'],['Skater Shoes','common'],['Combat Boots','common'],['Loafers','common'],['Slides','common'],['High-Tops','common'],
+               ['Chrome-Sole Sneakers','rare'],['Neon Runners','rare'],['Gold-Trim Boots','rare'],['Retro Basketball Kicks','rare'],
+               ['Anti-Gravity Sneakers','epic'],['Molten Sole Boots','epic'],
+               ['Winged Messenger Boots','legendary'],['Voidwalker Treads','super_rare'],['Titan Stride Boots','super_rare'],['??? Origin Boots','secret']],
+        jewelry: [['Leather Bracelet','common'],['Stud Earring','common'],['Simple Chain','common'],['Signet Ring','common'],['Wristband Set','common'],['Dog Tag Necklace','common'],
+               ['Silver Chain Deluxe','rare'],['Onyx Ring','rare'],['Skull Bracelet','rare'],['Gold Cuff','rare'],
+               ['Dragon Fang Necklace','epic'],['Thunder Chain','epic'],
+               ["King's Signet of Power",'legendary'],['Warlord Fang Chain','super_rare'],['Titan Core Signet','super_rare'],['??? Origin Signet','secret']],
+        eyewear: [['Aviators','common'],['Wayfarers','common'],['Sport Shades','common'],['Round Frames','common'],['Clear Lens Glasses','common'],['Tinted Shield','common'],
+               ['Chrome Aviators','rare'],['Neon Lens Shades','rare'],['Racing Visor','rare'],['Reflective Shield','rare'],
+               ['Storm Lens Goggles','epic'],['Molten Frame Shades','epic'],
+               ['Dragon Eye Visor','legendary'],['Voidglass Optics','super_rare'],['Titan Sight Visor','super_rare'],['??? Origin Optics','secret']],
+        pet: [['Puppy','common'],['Lizard','common'],['Hawk Chick','common'],['Wolf Pup','common'],['Turtle','common'],['Ferret','common'],
+               ['Baby Dragon','rare'],['Falcon','rare'],['Panther Cub','rare'],['Armored Beetle','rare'],
+               ['Storm Wolf','epic'],['Lava Salamander','epic'],
+               ['Ancient Dragon Hatchling','legendary'],['Voidfang Wyrmling','super_rare'],['Titanborn Direwolf','super_rare'],['??? Origin Beast','secret']],
+        aura: [['Smoke Trail','common'],['Dust Cloud','common'],['Simple Glow','common'],['Spark Trail','common'],['Wind Gust','common'],['Shadow Wisp','common'],
+               ['Lightning Aura','rare'],['Flame Trail','rare'],['Chrome Shine','rare'],['Storm Cloud','rare'],
+               ['Molten Core Aura','epic'],['Thunder God Aura','epic'],
+               ['Dragon Fire Aura','legendary'],['Voidfire Aura','super_rare'],['Titan Wrath Aura','super_rare'],['??? Origin Aura','secret']]
+      }
+    };
+
+    // Build the full catalogue: 8 categories × 16 items × 2 genders = 256 accessories.
+    const ACCESSORIES = [];
+    ACCESSORY_CATEGORIES.forEach(cat => {
+      ['girly', 'men'].forEach(gender => {
+        const emoji = gender === 'girly' ? cat.girlyEmoji : cat.boysEmoji;
+        (ACCESSORY_NAMES[gender][cat.key] || []).forEach(([name, rarity], i) => {
+          ACCESSORIES.push({ id: `${gender}-${cat.key}-${i}`, name, rarity, gender, category: cat.key, categoryLabel: cat.label, emoji });
+        });
+      });
+    });
+    // The 10 Ultra Secret gold variants — exactly 10, no more, no less. Not tied to a gender,
+    // since they're the rarest possible pull from ANY box (girly, men's, mixed, premium, elite).
+    const ULTRA_SECRET_ITEMS = [
+      { id: 'ultra-0', name: '24K Golden Crown',        rarity: 'ultra_secret', gender: 'mixed', category: 'headwear', categoryLabel: 'Headwear', emoji: '👑' },
+      { id: 'ultra-1', name: 'Golden Phoenix Aura',      rarity: 'ultra_secret', gender: 'mixed', category: 'aura',     categoryLabel: 'Aura',     emoji: '🔥' },
+      { id: 'ultra-2', name: '24K Diamond Chain',        rarity: 'ultra_secret', gender: 'mixed', category: 'jewelry',  categoryLabel: 'Jewelry',  emoji: '💛' },
+      { id: 'ultra-3', name: 'Golden Unicorn',           rarity: 'ultra_secret', gender: 'mixed', category: 'pet',      categoryLabel: 'Pet',      emoji: '🦄' },
+      { id: 'ultra-4', name: 'Golden Emperor Robe',      rarity: 'ultra_secret', gender: 'mixed', category: 'outfit',   categoryLabel: 'Outfit',   emoji: '🥻' },
+      { id: 'ultra-5', name: '24K Glass Heels',          rarity: 'ultra_secret', gender: 'mixed', category: 'shoes',    categoryLabel: 'Shoes',    emoji: '👠' },
+      { id: 'ultra-6', name: 'Golden Aviator Shades',    rarity: 'ultra_secret', gender: 'mixed', category: 'eyewear',  categoryLabel: 'Eyewear',  emoji: '🕶️' },
+      { id: 'ultra-7', name: 'Molten Gold Mohawk',       rarity: 'ultra_secret', gender: 'mixed', category: 'hair',     categoryLabel: 'Hair',     emoji: '💇' },
+      { id: 'ultra-8', name: 'Golden Dragon Fang',       rarity: 'ultra_secret', gender: 'mixed', category: 'jewelry',  categoryLabel: 'Jewelry',  emoji: '🐲' },
+      { id: 'ultra-9', name: 'Midas Touch Aura',         rarity: 'ultra_secret', gender: 'mixed', category: 'aura',     categoryLabel: 'Aura',     emoji: '✨' }
+    ];
+    ACCESSORIES.push(...ULTRA_SECRET_ITEMS);
+    const ACCESSORIES_BY_ID = {};
+    ACCESSORIES.forEach(a => { ACCESSORIES_BY_ID[a.id] = a; });
+
+    // Pool of accessories a given box type can pull from: 'girly'/'men' restrict to that
+    // gender's collection, 'mixed' pulls from everything. Ultra Secrets are excluded here on
+    // purpose — they're handed out as a flat pool of 10 in pickRandomAccessory below, regardless
+    // of which box (girly/men/mixed/premium/elite) rolled the ultra_secret rarity.
+    function poolForGender(gender) {
+      const base = gender === 'mixed' ? ACCESSORIES : ACCESSORIES.filter(a => a.gender === gender);
+      return base.filter(a => a.rarity !== 'ultra_secret');
+    }
+    // How many items share this exact gender+rarity combo — used to turn a rarity's overall
+    // weight into a single item's actual pull chance (odds shown in the Collection tab, based
+    // on that item's own girly/men box).
+    function poolForGenderCount(gender, rarity) {
+      return ACCESSORIES.filter(a => a.gender === gender && a.rarity === rarity).length;
+    }
+
+    // Rolls a rarity using the CS:GO-style weight table. If minRarity is given, only rarities
+    // at or above that tier are eligible and their weights are re-normalized — this is what makes
+    // a "guaranteed epic+" premium box actually guaranteed rather than just cosmetic framing.
+    function rollRarity(minRarity) {
+      const minIdx = minRarity ? RARITY_ORDER.indexOf(minRarity) : 0;
+      const eligible = RARITY_ORDER.filter((r, i) => i >= minIdx);
+      const totalWeight = eligible.reduce((s, r) => s + RARITY_WEIGHTS[r], 0);
+      const roll = Math.random() * totalWeight;
+      let cum = 0;
+      for (const r of eligible) { cum += RARITY_WEIGHTS[r]; if (roll <= cum) return r; }
+      return eligible[eligible.length - 1];
+    }
+
+    function pickRandomAccessory(gender, minRarity) {
+      const chosenRarity = rollRarity(minRarity);
+      if (chosenRarity === 'ultra_secret') {
+        return ULTRA_SECRET_ITEMS[Math.floor(Math.random() * ULTRA_SECRET_ITEMS.length)];
+      }
+      const pool = poolForGender(gender).filter(a => a.rarity === chosenRarity);
+      if (!pool.length) return poolForGender(gender)[Math.floor(Math.random() * poolForGender(gender).length)];
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    function grantAccessory(item) {
+      inventory[item.id] = (inventory[item.id] || 0) + 1;
+      saveInventory();
+    }
+
+    const HIGH_TIER_RARITIES = ['legendary', 'super_rare', 'secret', 'ultra_secret'];
+
+    function buyMysteryBox(boxKey) {
+      const box = MYSTERY_BOXES[boxKey];
+      if (!box) return;
+      const price = shopPrice(box.cost);
+      if (coins < price) { showInfo(`Not enough Petal Coins yet — a ${box.label} costs ${price} 🌸. Keep completing tasks and papers!`, 'Not enough coins'); return; }
+      coins -= price;
+      saveCoins();
+      const item = pickRandomAccessory(box.gender, box.minRarity);
+      grantAccessory(item);
+      // The reel animation reveals + grants the sound/confetti/particle payoff once it lands.
+      playCaseOpen(item, box);
+      renderShop();
+    }
+
+    /* ---------------- daily shop (deterministic per calendar day) ---------------- */
+    function hashStr(str) { let h = 0; for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) | 0; return h; }
+    function seededRandom(seed) {
+      return function () {
+        seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+        let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+    function generateDailyShop(dayId) {
+      // Ultra Secrets never show up in the daily shop — it picks uniformly per item, not
+      // weighted by rarity, so leaving them in would make a 1-in-256 gold item as common
+      // as any plain common. They only ever come from box gacha.
+      const dailyPool = ACCESSORIES.filter(a => a.rarity !== 'ultra_secret');
+      const rng = seededRandom(hashStr(dayId));
+      const usedIds = new Set(); const picks = [];
+      let guard = 0;
+      while (picks.length < DAILY_SHOP_SIZE && guard < 1000) {
+        guard++;
+        const item = dailyPool[Math.floor(rng() * dailyPool.length)];
+        if (!item || usedIds.has(item.id)) continue;
+        usedIds.add(item.id); picks.push(item.id);
+      }
+      return { date: dayId, items: picks, purchased: [] };
+    }
+    // Countdown text to the next 2am rollover, shown like a store-refresh timer.
+    function timeUntilNextDailyReset() {
+      const now = new Date();
+      const next = new Date(now);
+      next.setHours(2, 0, 0, 0);
+      if (now.getHours() >= 2) next.setDate(next.getDate() + 1);
+      const ms = next - now;
+      const h = Math.floor(ms / 3600000);
+      const m = Math.floor((ms % 3600000) / 60000);
+      return `${h}h ${m}m`;
+    }
+    function ensureDailyShop() {
+      const todayId = logicalId();
+      // Also regenerate if a stale state from before the row shrank from 6 items to 5 is
+      // still sitting in localStorage — this only ever fires once per device, on upgrade.
+      if (!dailyShopState || dailyShopState.date !== todayId || !Array.isArray(dailyShopState.items) || dailyShopState.items.length !== DAILY_SHOP_SIZE) {
+        dailyShopState = generateDailyShop(todayId);
+        saveDailyShop();
+      }
+    }
+
+    function updateCoinDisplays() {
+      [document.getElementById('coinCount'), document.getElementById('shopCoinCount')].forEach(el => { if (el) el.textContent = coins; });
+    }
+    // Small floating "-N" next to the shop's coin pill, purely cosmetic feedback for a spend.
+    function popCoinDelta(amount) {
+      const pill = document.getElementById('shopCoinCount')?.closest('.coin-pill');
+      if (!pill) return;
+      pill.style.position = 'relative';
+      const span = document.createElement('span');
+      span.className = 'coin-float';
+      span.textContent = `-${amount}`;
+      pill.appendChild(span);
+      setTimeout(() => span.remove(), 950);
+    }
+    // Re-checks every visible buy button's disabled state against the current coin total —
+    // used after a purchase so we don't have to fully re-render the row (which would cut off
+    // any in-flight card/reveal animation) just to keep affordability accurate.
+    function refreshBuyButtonStates() {
+      document.querySelectorAll('[data-buy-store]').forEach(btn => {
+        btn.disabled = coins < Number(btn.dataset.price || 0);
+      });
+      const nmBtn = document.getElementById('nmBuyBtn');
+      if (nmBtn && nightMarketState && nightMarketState.revealed && !nightMarketState.purchased) {
+        const item = ACCESSORIES_BY_ID[nightMarketState.itemId];
+        if (item) nmBtn.disabled = coins < nightMarketFinalPrice(item, nightMarketState.discountPct);
+      }
+    }
+
+    const storeBuying = new Set(); // itemIds currently mid-purchase-animation, blocks double-buys
+    function buyStoreItem(itemId) {
+      if (storeBuying.has(itemId)) return;
+      ensureDailyShop();
+      if (dailyShopState.purchased.includes(itemId)) return;
+      const item = ACCESSORIES_BY_ID[itemId];
+      if (!item) return;
+      const price = shopPrice(DAILY_SHOP_PRICE[item.rarity]);
+      if (coins < price) { showInfo('Not enough Petal Coins for that yet.', 'Not enough coins'); return; }
+
+      storeBuying.add(itemId);
+      const card = document.querySelector(`.gshop-card[data-item-id="${itemId}"]`);
+      const btn = card?.querySelector('.gshop-buy-btn');
+      if (btn) { btn.disabled = true; btn.textContent = '…'; }
+      if (card) card.classList.add('just-bought');
+
+      coins -= price;
+      saveCoins();
+      grantAccessory(item);
+      dailyShopState.purchased.push(itemId);
+      saveDailyShop();
+      playSound(HIGH_TIER_RARITIES.includes(item.rarity) ? 'levelup' : 'check');
+      popCoinDelta(price);
+      updateCoinDisplays();
+      showRewardModal(item);
+
+      setTimeout(() => {
+        if (card) {
+          card.classList.remove('just-bought');
+          const priceRow = card.querySelector('.gshop-price-row');
+          if (priceRow) priceRow.outerHTML = `<div class="gshop-owned">✓ Got it today</div>`;
+        }
+        storeBuying.delete(itemId);
+        refreshBuyButtonStates();
+      }, 480);
+    }
+
+    /* ---------------- Night Market: one randomly-picked deal per day, at the ORIGINAL
+       (pre-markup) price minus a random discount — independent of the 5 featured cards above,
+       so it never just echoes the +10% regular shop price. ---------------- */
+    const NIGHT_MARKET_KEY = 'hafsah_nightmarket_v1';
+    const NM_MIN_DISCOUNT = 20;  // %
+    const NM_MAX_DISCOUNT = 45;  // %
+    let nightMarketState = JSON.parse(localStorage.getItem(NIGHT_MARKET_KEY)) || null;
+    function saveNightMarket() { localStorage.setItem(NIGHT_MARKET_KEY, JSON.stringify(nightMarketState)); }
+
+    function generateNightMarket(dayId) {
+      const daily = generateDailyShop(dayId);
+      const dailyIds = new Set(daily.items);
+      const pool = ACCESSORIES.filter(a =>
+        a.rarity !== 'ultra_secret' && !dailyIds.has(a.id)
+      ); // Night Market is always a sixth, separate item.
+      const rng = seededRandom(hashStr(dayId + '-nightmarket'));
+      const item = pool[Math.floor(rng() * pool.length)];
+      const discountPct = NM_MIN_DISCOUNT + Math.floor(rng() * (NM_MAX_DISCOUNT - NM_MIN_DISCOUNT + 1));
+      return { date: dayId, itemId: item.id, discountPct, revealed: false, purchased: false };
+    }
+    function ensureNightMarket() {
+      const todayId = logicalId();
+      if (!nightMarketState || nightMarketState.date !== todayId) {
+        nightMarketState = generateNightMarket(todayId);
+        saveNightMarket();
+      }
+    }
+    // Always the ORIGINAL price from the base table — never the already-marked-up regular shop price.
+    function nightMarketOriginalPrice(item) { return DAILY_SHOP_PRICE[item.rarity]; }
+    function nightMarketFinalPrice(item, discountPct) {
+      return Math.max(1, Math.round(nightMarketOriginalPrice(item) * (1 - discountPct / 100)));
+    }
+
+    // Reveal pacing/intensity per rarity — higher tiers take a little longer and throw more
+    // particles, but nothing here is slow enough to feel like a wait.
+    const NM_REVEAL_PROFILE = {
+      common:       { total: 900,  particles: 5  },
+      rare:         { total: 1100, particles: 9  },
+      epic:         { total: 1350, particles: 14 },
+      legendary:    { total: 1650, particles: 20 },
+      super_rare:   { total: 1850, particles: 26 },
+      secret:       { total: 2050, particles: 32 },
+      ultra_secret: { total: 2300, particles: 40 }
+    };
+    function nmParticleSymbols(rarity) {
+      return rarity === 'ultra_secret' ? ['🌟','💰','👑','✨']
+           : rarity === 'secret'       ? ['✨','💫','⭐','🌟']
+           : rarity === 'super_rare'   ? ['🔥','✨','⚡']
+           : rarity === 'legendary'    ? ['✨','⭐','💫']
+           : rarity === 'epic'         ? ['💜','✨']
+           : rarity === 'rare'         ? ['💙','✨']
+           : ['✨'];
+    }
+    function spawnNMParticles(rarity) {
+      const layer = document.getElementById('nmParticleLayer');
+      if (!layer) return;
+      const profile = NM_REVEAL_PROFILE[rarity] || NM_REVEAL_PROFILE.common;
+      const symbols = nmParticleSymbols(rarity);
+      for (let i = 0; i < profile.particles; i++) {
+        const p = document.createElement('span');
+        p.className = 'nm-particle';
+        p.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+        p.style.left = (8 + Math.random() * 84) + '%';
+        p.style.animationDelay = (Math.random() * 0.6) + 's';
+        p.style.fontSize = (0.9 + Math.random() * 1.1) + 'rem';
+        layer.appendChild(p);
+      }
+      setTimeout(() => { layer.innerHTML = ''; }, profile.total + 600);
+    }
+
+    // Builds the Night Market card markup for a given phase:
+    //   'locked'    — mystery state, nothing revealed yet
+    //   'revealing' — full structure in the DOM, but each .nm-step starts hidden so JS can
+    //                 reveal them one at a time on a timer
+    //   'settled'   — already revealed (e.g. shop was reopened later the same day); everything shown immediately
+    function nightMarketCardHtml(phase) {
+      ensureNightMarket();
+      const item = ACCESSORIES_BY_ID[nightMarketState.itemId];
+      if (!item) return '';
+      if (phase === 'locked') {
+        return `
+          <div class="gshop-nightmarket locked" id="nightMarketCard">
+            <div class="nm-ambient"></div>
+            <div class="nm-content">
+              <div class="nm-badge">🌙 NIGHT MARKET</div>
+              <div class="nm-mystery-icon">❔</div>
+              <p class="nm-tagline">A special deal is waiting…</p>
+              <div class="nm-mystery-price">???</div>
+              <button class="nm-reveal-btn" id="nmRevealBtn">REVEAL</button>
+            </div>
+          </div>`;
+      }
+      const original = nightMarketOriginalPrice(item);
+      const final = nightMarketFinalPrice(item, nightMarketState.discountPct);
+      const shown = phase === 'settled' ? ' shown' : '';
+      const wrapClass = phase === 'settled' ? 'settled' : 'revealing';
+      const buySlot = nightMarketState.purchased
+        ? `<div class="nm-owned-badge">✓ Claimed for tonight</div>`
+        : `<button class="nm-buy-btn" id="nmBuyBtn" ${phase === 'settled' ? (coins < final ? 'disabled' : '') : 'disabled'}>BUY NOW</button>`;
+      return `
+        <div class="gshop-nightmarket ${wrapClass}" id="nightMarketCard" data-rarity="${item.rarity}">
+          <div class="nm-ambient"></div>
+          <div class="nm-shimmer"></div>
+          <div class="nm-particle-layer" id="nmParticleLayer"></div>
+          <div class="nm-content">
+            <div class="nm-badge">🌙 NIGHT MARKET</div>
+            <div class="nm-rarity-tag nm-step nm-step-1${shown} rarity-${item.rarity}">${RARITY_LABELS[item.rarity]}</div>
+            <div class="nm-art nm-step nm-step-2${shown}">${item.emoji}</div>
+            <div class="nm-name nm-step nm-step-3${shown}">${item.name}</div>
+            <div class="nm-price-row nm-step nm-step-4${shown}">
+              <span class="nm-price-original">${original} 🌸</span>
+              <span class="nm-price-final">${final} 🌸</span>
+              <span class="nm-discount-badge">${nightMarketState.discountPct}% OFF</span>
+            </div>
+            <div class="nm-step nm-step-5${shown}">${buySlot}</div>
+          </div>
+        </div>`;
+    }
+
+    function renderNightMarketInto(container) {
+      if (!container) return;
+      ensureNightMarket();
+      container.innerHTML = nightMarketCardHtml(nightMarketState.revealed ? 'settled' : 'locked');
+      bindNightMarketEvents();
+    }
+
+    function bindNightMarketEvents() {
+      const card = document.getElementById('nightMarketCard');
+      if (!card) return;
+      if (card.classList.contains('locked')) {
+        card.onclick = () => startNightMarketReveal();
+      } else {
+        card.onclick = (e) => {
+          if (e.target.closest('#nmBuyBtn') || nmAnimating) return;
+          card.classList.remove('inspect-pulse');
+          void card.offsetWidth;
+          card.classList.add('inspect-pulse');
+        };
+        const buyBtn = document.getElementById('nmBuyBtn');
+        if (buyBtn) buyBtn.onclick = (e) => { e.stopPropagation(); buyNightMarketItem(); };
+      }
+    }
+
+    let nmAnimating = false;
+    let nmBuying = false;
+    function startNightMarketReveal() {
+      if (nmAnimating || !nightMarketState || nightMarketState.revealed) return;
+      nmAnimating = true;
+      const card = document.getElementById('nightMarketCard');
+      if (card) card.classList.add('pressed');
+      playSound('check');
+      setTimeout(() => {
+        nightMarketState.revealed = true;
+        saveNightMarket();
+        const wrap = card ? card.parentElement : document.getElementById('nightMarketWrap');
+        if (!wrap) { nmAnimating = false; return; }
+        wrap.innerHTML = nightMarketCardHtml('revealing');
+        const newCard = document.getElementById('nightMarketCard');
+        const item = ACCESSORIES_BY_ID[nightMarketState.itemId];
+        const profile = NM_REVEAL_PROFILE[item.rarity] || NM_REVEAL_PROFILE.common;
+        const t = profile.total;
+        const show = (sel) => newCard?.querySelector(sel)?.classList.add('shown');
+        setTimeout(() => spawnNMParticles(item.rarity), t * 0.25);
+        setTimeout(() => show('.nm-step-1'), t * 0.30);
+        setTimeout(() => show('.nm-step-2'), t * 0.52);
+        setTimeout(() => show('.nm-step-3'), t * 0.72);
+        setTimeout(() => show('.nm-step-4'), t * 0.86);
+        setTimeout(() => {
+          show('.nm-step-5');
+          const buyBtn = document.getElementById('nmBuyBtn');
+          if (buyBtn) buyBtn.disabled = coins < nightMarketFinalPrice(item, nightMarketState.discountPct);
+          newCard?.classList.remove('revealing');
+          newCard?.classList.add('settled');
+          playSound(HIGH_TIER_RARITIES.includes(item.rarity) ? 'levelup' : 'check');
+          if (['epic','legendary','super_rare','secret','ultra_secret'].includes(item.rarity) && typeof confetti === 'function') {
+            const particleCount = item.rarity === 'ultra_secret' ? 220 : item.rarity === 'secret' ? 170 : item.rarity === 'super_rare' ? 140 : item.rarity === 'legendary' ? 110 : 60;
+            const colors = item.rarity === 'ultra_secret' ? ['#ffd700', '#fff6d0', '#b8860b'] : undefined;
+            try { confetti({ particleCount, spread: 100, origin: { y: 0.4 }, ...(colors ? { colors } : {}) }); } catch (err) {}
+          }
+          bindNightMarketEvents();
+          nmAnimating = false;
+        }, t);
+      }, 160);
+    }
+
+    function buyNightMarketItem() {
+      if (nmBuying || !nightMarketState || !nightMarketState.revealed || nightMarketState.purchased) return;
+      const item = ACCESSORIES_BY_ID[nightMarketState.itemId];
+      if (!item) return;
+      const price = nightMarketFinalPrice(item, nightMarketState.discountPct);
+      if (coins < price) { showInfo('Not enough Petal Coins for tonight\u2019s deal yet.', 'Not enough coins'); return; }
+
+      nmBuying = true;
+      const buyBtn = document.getElementById('nmBuyBtn');
+      if (buyBtn) buyBtn.disabled = true;
+
+      coins -= price;
+      saveCoins();
+      grantAccessory(item);
+      nightMarketState.purchased = true;
+      saveNightMarket();
+      playSound(HIGH_TIER_RARITIES.includes(item.rarity) ? 'levelup' : 'check');
+      popCoinDelta(price);
+      updateCoinDisplays();
+
+      const card = document.getElementById('nightMarketCard');
+      if (card) { card.classList.add('dark-flash'); setTimeout(() => card.classList.remove('dark-flash'), 1400); }
+      const buySlot = document.querySelector('.nm-step-5');
+      if (buySlot) buySlot.innerHTML = `<div class="nm-owned-badge">✓ Claimed for tonight</div>`;
+      if (typeof confetti === 'function') {
+        const particleCount = HIGH_TIER_RARITIES.includes(item.rarity) ? 130 : 60;
+        try { confetti({ particleCount, spread: 90, origin: { y: 0.5 } }); } catch (err) {}
+      }
+      refreshBuyButtonStates();
+      nmBuying = false;
+    }
+
+    function toggleEquip(itemId) {
+      const item = ACCESSORIES_BY_ID[itemId];
+      if (!item) return;
+      if (equipped[item.category] === itemId) delete equipped[item.category];
+      else equipped[item.category] = itemId;
+      saveEquipped();
+      renderShop();
+    }
+
+    /* ---------------- reward reveal modal ---------------- */
+    function showRewardModal(item) {
+      document.getElementById('rewardEmoji').textContent = item.emoji;
+      document.getElementById('rewardTitle').textContent =
+        item.rarity === 'legendary' ? '✨ LEGENDARY! ✨' :
+        item.rarity === 'epic' ? '💜 Epic pull!' :
+        item.rarity === 'rare' ? '💙 Nice, a rare!' : 'You got:';
+      document.getElementById('rewardName').textContent = `${item.emoji} ${item.name}`;
+      const rEl = document.getElementById('rewardRarity');
+      rEl.textContent = item.rarity.toUpperCase();
+      rEl.className = `reveal-item-rarity rarity-${item.rarity}`;
+      document.getElementById('rewardModal').classList.add('active');
+      if ((item.rarity === 'epic' || item.rarity === 'legendary') && typeof confetti === 'function') {
+        try { confetti({ particleCount: item.rarity === 'legendary' ? 140 : 80, spread: 100, origin: { y: 0.5 } }); } catch (err) {}
+      }
+    }
+    function closeRewardModal() { document.getElementById('rewardModal').classList.remove('active'); }
+
+    /* ---------------- CS:GO-style case opening reel ---------------- */
+    const CASE_REEL_LENGTH = 46;   // total cells built into the reel
+    const CASE_WINNER_INDEX = 38;  // where the guaranteed item sits (near the end, not last, so it never looks clipped)
+    const CASE_CELL_FULL_WIDTH = 94; // 84px cell + 10px gap, must match the CSS
+
+    function spawnCaseParticles(container, rarity) {
+      if (!HIGH_TIER_RARITIES.includes(rarity)) return;
+      const layer = document.createElement('div');
+      layer.className = 'case-particle-layer';
+      const symbols = rarity === 'ultra_secret' ? ['🌟','💰','👑','✨'] : rarity === 'secret' ? ['✨','💫','⭐','🌟'] : rarity === 'super_rare' ? ['🔥','✨','⚡'] : ['✨','⭐'];
+      const count = rarity === 'ultra_secret' ? 30 : rarity === 'secret' ? 22 : rarity === 'super_rare' ? 16 : 10;
+      for (let i = 0; i < count; i++) {
+        const p = document.createElement('span');
+        p.className = 'case-particle';
+        p.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+        p.style.left = (10 + Math.random() * 80) + '%';
+        p.style.animationDelay = (Math.random() * 0.5) + 's';
+        p.style.fontSize = (0.8 + Math.random() * 0.9) + 'rem';
+        layer.appendChild(p);
+      }
+      container.appendChild(layer);
+      setTimeout(() => layer.remove(), 1700);
+    }
+
+    // Builds and animates the reel, then hands off to the normal reward payoff (sound/confetti)
+    // once it settles on the real, already-granted item.
+    function playCaseOpen(item, box) {
+      const modal = document.getElementById('caseModal');
+      const reel = document.getElementById('caseReel');
+      const reveal = document.getElementById('caseReveal');
+      const closeBtn = document.getElementById('caseCloseBtn');
+      document.getElementById('caseBoxTitle').textContent = `Opening ${box.label}…`;
+      reveal.classList.add('pending');
+      closeBtn.style.visibility = 'hidden';
+      reel.style.transition = 'none';
+      reel.style.transform = 'translateX(0px)';
+      reel.innerHTML = '';
+
+      const pool = poolForGender(box.gender);
+      const filler = () => pool[Math.floor(Math.random() * pool.length)];
+
+      for (let i = 0; i < CASE_REEL_LENGTH; i++) {
+        const cellItem = i === CASE_WINNER_INDEX ? item : filler();
+        const cell = document.createElement('div');
+        cell.className = `case-cell tier-${cellItem.rarity} rarity-bg-${cellItem.rarity}` + (i === CASE_WINNER_INDEX ? ' winner-cell' : '');
+        cell.textContent = cellItem.emoji; // never a silhouette during the spin — the reel is meant to be read
+        reel.appendChild(cell);
+      }
+
+      modal.classList.add('active');
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const viewportWidth = reel.parentElement.clientWidth;
+          const jitter = (Math.random() * 50) - 25; // lands slightly off-center within the winning cell, like a real case
+          const targetOffset = (CASE_WINNER_INDEX * CASE_CELL_FULL_WIDTH) + (CASE_CELL_FULL_WIDTH / 2) - (viewportWidth / 2) - jitter;
+          reel.style.transition = 'transform 4.2s cubic-bezier(.12,.72,.14,1)';
+          reel.style.transform = `translateX(${-targetOffset}px)`;
+        });
+      });
+
+      const onSettle = () => {
+        reel.removeEventListener('transitionend', onSettle);
+        document.getElementById('caseRewardEmoji').textContent = item.emoji;
+        document.getElementById('caseRewardName').textContent = `${item.emoji} ${item.name}`;
+        const rEl = document.getElementById('caseRewardRarity');
+        rEl.textContent = RARITY_LABELS[item.rarity].toUpperCase();
+        rEl.className = `reveal-item-rarity rarity-${item.rarity}`;
+        reveal.classList.remove('pending');
+        closeBtn.style.visibility = 'visible';
+        playSound(HIGH_TIER_RARITIES.includes(item.rarity) ? 'levelup' : 'check');
+        spawnCaseParticles(document.querySelector('.case-viewport'), item.rarity);
+        if (['epic', 'legendary', 'super_rare', 'secret', 'ultra_secret'].includes(item.rarity) && typeof confetti === 'function') {
+          const particleCount = item.rarity === 'ultra_secret' ? 280 : item.rarity === 'secret' ? 200 : item.rarity === 'super_rare' ? 160 : item.rarity === 'legendary' ? 130 : 70;
+          const colors = item.rarity === 'ultra_secret' ? ['#ffd700', '#fff6d0', '#b8860b'] : undefined;
+          try { confetti({ particleCount, spread: 110, origin: { y: 0.5 }, ...(colors ? { colors } : {}) }); } catch (err) {}
+        }
+      };
+      reel.addEventListener('transitionend', onSettle);
+    }
+    document.getElementById('caseCloseBtn')?.addEventListener('click', () => {
+      document.getElementById('caseModal').classList.remove('active');
+    });
+    document.getElementById('caseModal')?.addEventListener('click', (e) => {
+      if (e.target.id === 'caseModal') e.target.classList.remove('active');
+    });
+
+    /* ---------------- custom confirm/info modals (Android WebViews don't ----
+       reliably support window.confirm()/alert() unless the native wrapper
+       implements onJsConfirm/onJsAlert — most simple WebView wrappers don't,
+       so those calls can silently do nothing. These in-app modals replace
+       them everywhere in this file and work regardless of the wrapper. ---- */
+    function showConfirm(message, onYes, title) {
+      const modal = document.getElementById('confirmModal');
+      document.getElementById('confirmTitle').textContent = title || 'Are you sure?';
+      document.getElementById('confirmMessage').textContent = message;
+      modal.classList.add('active');
+      const yesBtn = document.getElementById('confirmYesBtn');
+      const noBtn = document.getElementById('confirmNoBtn');
+      const cleanup = () => { modal.classList.remove('active'); yesBtn.onclick = null; noBtn.onclick = null; };
+      yesBtn.onclick = () => { cleanup(); onYes(); };
+      noBtn.onclick = () => { cleanup(); };
+    }
+    function showInfo(message, title) {
+      document.getElementById('infoModalTitle').textContent = title || 'Heads up';
+      document.getElementById('infoModalMessage').textContent = message;
+      document.getElementById('infoModal').classList.add('active');
+    }
+    document.getElementById('infoModalOkBtn')?.addEventListener('click', () => {
+      document.getElementById('infoModal').classList.remove('active');
+    });
+    document.getElementById('confirmModal')?.addEventListener('click', (e) => {
+      if (e.target.id === 'confirmModal') e.target.classList.remove('active');
+    });
+    document.getElementById('infoModal')?.addEventListener('click', (e) => {
+      if (e.target.id === 'infoModal') e.target.classList.remove('active');
+    });
+
+    /* ---------------- shop overlay: tabs + rendering ---------------- */
+    let shopActiveTab = 'store';
+    let inventoryFilter = 'all';
+    let inventorySort = 'rarity-desc';
+    function renderShop() {
+      const body = document.getElementById('shopBody');
+      if (!body) return;
+      const coinEls = [document.getElementById('coinCount'), document.getElementById('shopCoinCount')];
+      coinEls.forEach(el => { if (el) el.textContent = coins; });
+
+      if (shopActiveTab === 'boxes') {
+        const oddsLine = RARITY_ORDER.map(r => `${RARITY_WEIGHTS[r]}% ${RARITY_LABELS[r].toLowerCase()}`).join(' · ');
+        const standardCards = ['girly', 'men', 'mixed'].map(key => {
+          const b = MYSTERY_BOXES[key];
+          const cls = key === 'girly' ? 'girly' : key === 'men' ? 'boys' : '';
+          const price = shopPrice(b.cost);
+          return `<div class="mystery-box-card ${cls}" data-box="${key}" ${coins < price ? 'disabled' : ''}>
+              <span class="box-emoji">${b.emoji}</span><div class="box-title">${b.label}</div><div class="box-price">🌸 ${price}</div>
+            </div>`;
+        }).join('');
+        const premiumCards = ['premium', 'elite'].map(key => {
+          const b = MYSTERY_BOXES[key];
+          const price = shopPrice(b.cost);
+          return `<div class="mystery-box-card" data-box="${key}" ${coins < price ? 'disabled' : ''}>
+              <span class="box-emoji">${b.emoji}</span><div class="box-title">${b.label}</div><div class="box-price">🌸 ${price}</div>
+            </div>`;
+        }).join('');
+        body.innerHTML = `
+          <div class="shop-section-title">🎁 Mystery Boxes</div>
+          <div class="shop-subtext">Every box guarantees one accessory. Base odds: ${oddsLine}.</div>
+          <div class="shop-gender-row">${standardCards}</div>
+          <div class="shop-gender-row">${premiumCards}</div>
+        `;
+        body.querySelectorAll('[data-box]:not([disabled])').forEach(card => card.addEventListener('click', () => buyMysteryBox(card.dataset.box)));
+      } else if (shopActiveTab === 'collection') {
+        const chips = ['all', ...ACCESSORY_CATEGORIES.map(c => c.key)];
+        const chipHtml = chips.map(c => {
+          const label = c === 'all' ? 'All' : ACCESSORY_CATEGORIES.find(x => x.key === c).label;
+          return `<button class="inv-filter-chip ${inventoryFilter === c ? 'active' : ''}" data-inv-filter="${c}">${label}</button>`;
+        }).join('');
+        const shown = inventoryFilter === 'all' ? ACCESSORIES : ACCESSORIES.filter(a => a.category === inventoryFilter);
+        // Shuffled once per render so it reads as "mixed", not grouped by gender/category —
+        // the point of the collection tab is browsing everything obtainable, jumbled together.
+        const shuffled = [...shown].sort(() => Math.random() - 0.5);
+        const cells = shuffled.map(a => {
+          const owned = (inventory[a.id] || 0) > 0;
+          const poolSize = poolForGenderCount(a.gender, a.rarity);
+          const chance = ((RARITY_WEIGHTS[a.rarity] / 100 / poolSize) * 100);
+          const chanceStr = chance >= 0.1 ? chance.toFixed(2) + '%' : chance.toFixed(3) + '%';
+          return `<div class="collection-cell ${owned ? 'owned' : 'unowned'} rarity-bg-${a.rarity}" data-cc-id="${a.id}">
+              <span class="cc-emoji">${a.emoji}</span>
+              <div class="cc-tooltip">
+                <span class="cc-name">${owned ? a.name : '???'}</span>
+                <span class="rarity-${a.rarity}">${RARITY_LABELS[a.rarity]}</span> · <span class="cc-chance">${chanceStr} chance</span>
+              </div>
+            </div>`;
+        }).join('');
+        body.innerHTML = `
+          <div class="shop-section-title">📖 Full Collection</div>
+          <div class="shop-subtext">Everything that can drop from a box, mixed together. Unowned items are silhouettes — tap or hover one to see its rarity and odds.</div>
+          <div class="inventory-filter-row">${chipHtml}</div>
+          <div class="collection-grid">${cells}</div>
+        `;
+        body.querySelectorAll('[data-inv-filter]').forEach(chip => chip.addEventListener('click', () => { inventoryFilter = chip.dataset.invFilter; renderShop(); }));
+        // Tap-to-reveal for touch devices where :hover doesn't fire reliably.
+        body.querySelectorAll('[data-cc-id]').forEach(cell => cell.addEventListener('click', () => {
+          const a = ACCESSORIES_BY_ID[cell.dataset.ccId];
+          const owned = (inventory[a.id] || 0) > 0;
+          const poolSize = poolForGenderCount(a.gender, a.rarity);
+          const chance = ((RARITY_WEIGHTS[a.rarity] / 100 / poolSize) * 100);
+          const chanceStr = chance >= 0.1 ? chance.toFixed(2) + '%' : chance.toFixed(3) + '%';
+          showInfo(`${RARITY_LABELS[a.rarity]} · ${chanceStr} chance per box pull.`, owned ? `${a.emoji} ${a.name}` : '??? (not yet unlocked)');
+        }));
+      } else if (shopActiveTab === 'store') {
+        ensureDailyShop();
+        ensureNightMarket();
+        const items = dailyShopState.items.map(id => ACCESSORIES_BY_ID[id]).filter(Boolean);
+        const genderLabel = g => g === 'girly' ? 'Girly' : g === 'men' ? "Men's" : 'Universal';
+        const cards = items.map(item => {
+          const price = shopPrice(DAILY_SHOP_PRICE[item.rarity]);
+          const bought = dailyShopState.purchased.includes(item.id);
+          return `
+            <div class="gshop-card" data-rarity="${item.rarity}" data-item-id="${item.id}">
+              <span class="gshop-rarity-tag rarity-${item.rarity}">${RARITY_LABELS[item.rarity]}</span>
+              <div class="gshop-art">${item.emoji}</div>
+              <div class="gshop-name">${item.name}</div>
+              <div class="gshop-desc">${genderLabel(item.gender)} ${item.categoryLabel}</div>
+              <div class="gshop-price-row"><span class="gshop-price">🌸 ${price}</span></div>
+              ${bought
+                ? `<div class="gshop-owned">✓ Got it today</div>`
+                : `<button class="gshop-buy-btn" data-buy-store="${item.id}" data-price="${price}" ${coins < price ? 'disabled' : ''}>BUY</button>`}
+            </div>`;
+        }).join('');
+        body.innerHTML = `
+          <div class="daily-shop-header">
+            <div class="shop-section-title" style="margin:0;">🏬 Today's Featured Picks</div>
+            <div class="daily-countdown">⏳ New stock in ${timeUntilNextDailyReset()}</div>
+          </div>
+          <div class="shop-subtext">Five hand-picked items, refreshed daily — direct purchases are 10% over base price. The separate Night Market below uses the original price before its discount.</div>
+          <div class="gshop-grid">${cards}</div>
+          <div id="nightMarketWrap"></div>
+        `;
+        body.querySelectorAll('[data-buy-store]').forEach(btn => btn.addEventListener('click', () => buyStoreItem(btn.dataset.buyStore)));
+        renderNightMarketInto(document.getElementById('nightMarketWrap'));
+      } else {
+        const owned = Object.keys(inventory).filter(id => inventory[id] > 0).map(id => ACCESSORIES_BY_ID[id]).filter(Boolean);
+        const chips = ['all', ...ACCESSORY_CATEGORIES.map(c => c.key)];
+        const chipHtml = chips.map(c => {
+          const label = c === 'all' ? 'All' : ACCESSORY_CATEGORIES.find(x => x.key === c).label;
+          return `<button class="inv-filter-chip ${inventoryFilter === c ? 'active' : ''}" data-inv-filter="${c}">${label}</button>`;
+        }).join('');
+        const filtered = inventoryFilter === 'all' ? owned : owned.filter(i => i.category === inventoryFilter);
+        const rarityIdx = r => RARITY_ORDER.indexOf(r);
+        const sorted = [...filtered].sort((a, b) => {
+          if (inventorySort === 'rarity-desc') return rarityIdx(b.rarity) - rarityIdx(a.rarity);
+          if (inventorySort === 'rarity-asc') return rarityIdx(a.rarity) - rarityIdx(b.rarity);
+          if (inventorySort === 'name') return a.name.localeCompare(b.name);
+          if (inventorySort === 'count') return (inventory[b.id] || 0) - (inventory[a.id] || 0);
+          if (inventorySort === 'category') return a.categoryLabel.localeCompare(b.categoryLabel) || rarityIdx(b.rarity) - rarityIdx(a.rarity);
+          return 0;
+        });
+        const grid = sorted.length ? sorted.map(item => {
+          const isEquipped = equipped[item.category] === item.id;
+          return `
+            <div class="item-card ${isEquipped ? 'equipped' : ''}" data-rarity="${item.rarity}">
+              <span class="item-emoji">${item.emoji}</span>
+              <span class="item-name">${item.name}</span>
+              <span class="item-rarity rarity-${item.rarity}">${RARITY_LABELS[item.rarity]}</span>
+              <span class="item-count">×${inventory[item.id]}</span>
+              <div class="item-price-row"><button class="item-equip-btn" data-equip="${item.id}">${isEquipped ? '✓ Equipped' : 'Equip'}</button></div>
+            </div>`;
+        }).join('') : `<div class="shop-empty">Nothing here yet — open a mystery box or check the daily shop!</div>`;
+        body.innerHTML = `
+          <div class="shop-section-title centered">🎒 Your Inventory</div>
+          <div class="inventory-filter-row">${chipHtml}</div>
+          <div class="inventory-sort-row">
+            <label for="invSortSelect">Sort by</label>
+            <select id="invSortSelect">
+              <option value="rarity-desc" ${inventorySort==='rarity-desc'?'selected':''}>Rarity: High → Low</option>
+              <option value="rarity-asc" ${inventorySort==='rarity-asc'?'selected':''}>Rarity: Low → High</option>
+              <option value="name" ${inventorySort==='name'?'selected':''}>Name: A → Z</option>
+              <option value="count" ${inventorySort==='count'?'selected':''}>Quantity Owned</option>
+              <option value="category" ${inventorySort==='category'?'selected':''}>Category</option>
+            </select>
+          </div>
+          <div class="inventory-grid">${grid}</div>
+        `;
+        body.querySelectorAll('[data-inv-filter]').forEach(chip => chip.addEventListener('click', () => { inventoryFilter = chip.dataset.invFilter; renderShop(); }));
+        body.querySelectorAll('[data-equip]').forEach(btn => btn.addEventListener('click', () => toggleEquip(btn.dataset.equip)));
+        document.getElementById('invSortSelect')?.addEventListener('change', (e) => { inventorySort = e.target.value; renderShop(); });
+      }
+    }
+
+    function openShop() {
+      ensureDailyShop();
+      ensureNightMarket();
+      renderShop();
+      document.getElementById('shopOverlay')?.classList.add('active');
+    }
+    function closeShop() { document.getElementById('shopOverlay')?.classList.remove('active'); }
+
+    document.getElementById('shopBtn')?.addEventListener('click', openShop);
+    document.getElementById('shopCloseBtn')?.addEventListener('click', closeShop);
+    document.getElementById('shopOverlay')?.addEventListener('click', (e) => {
+      if (e.target.id === 'shopOverlay') closeShop();
+    });
+    document.getElementById('shopTabs')?.addEventListener('click', (e) => {
+      const btn = e.target.closest('.shop-tab');
+      if (!btn) return;
+      shopActiveTab = btn.dataset.shopTab;
+      document.querySelectorAll('.shop-tab').forEach(t => t.classList.toggle('active', t === btn));
+      renderShop();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeShop();
+    });
 
     const isFirstRun = !localStorage.getItem(APP_STORAGE_KEY);
 
@@ -1152,7 +2549,11 @@
         if (day.tasks.length > 0) {
           let fullyDone = true;
           day.tasks.forEach(t => {
-            if (!userProgress[t.id]) { meta.missed[t.id] = true; fullyDone = false; anyNewMiss = true; }
+            if (!userProgress[t.id]) {
+              meta.missed[t.id] = true;
+              if (!meta.missedSince[t.id]) meta.missedSince[t.id] = todayId;
+              fullyDone = false; anyNewMiss = true;
+            }
           });
           meta.streak = fullyDone ? meta.streak + 1 : 0;
           if (!fullyDone && !meta.pendingReview.includes(day.id)) meta.pendingReview.push(day.id);
@@ -1185,16 +2586,18 @@
        GAMIFICATION
        ============================================================ */
     function updateGamification() {
-      const completedCount = Object.values(userProgress).filter(Boolean).length;
-      const totalXP = completedCount * 20;
-      const currentLevel = Math.floor(totalXP / 100) + 1;
-      const currentLevelXP = totalXP % 100;
+      const { currentLevel, currentLevelXP } = computeXPBreakdown();
+      const coinsEarned = settleLevelCoins(currentLevel);
 
       const levelBadgeEl = document.getElementById('levelBadge');
       levelBadgeEl.textContent = `Level ${currentLevel}`;
       document.getElementById('xpText').textContent = `${currentLevelXP} / 100 XP`;
       document.getElementById('xpBar').style.width = `${currentLevelXP}%`;
       document.getElementById('streakNum').textContent = meta.streak;
+      const coinCountEl = document.getElementById('coinCount');
+      if (coinCountEl) coinCountEl.textContent = coins;
+      const shopCoinEl = document.getElementById('shopCoinCount');
+      if (shopCoinEl) shopCoinEl.textContent = coins;
 
       const b = getBuildingForLevel(currentLevel);
       document.getElementById('townBuildingIcon').textContent = b.icon;
@@ -1204,7 +2607,7 @@
       miniLevelBadge.textContent = `Lv.${currentLevel}`;
       miniStreakNum.textContent = meta.streak;
 
-      return { currentLevel, b };
+      return { currentLevel, b, coinsEarned };
     }
 
     function triggerConfetti(x, y, opts) {
@@ -1220,9 +2623,10 @@
       } catch (err) { /* offline / blocked — fail silently, no confetti this time */ }
     }
 
-    function showLevelUpModal(building) {
+    function showLevelUpModal(building, coinsEarned) {
       document.getElementById('modalBuildingIcon').textContent = building.icon;
-      document.getElementById('modalBuildingText').textContent = `Congratulations! You unlocked the ${building.name}.`;
+      const coinLine = coinsEarned ? ` +${coinsEarned} 🌸 Petal Coins!` : '';
+      document.getElementById('modalBuildingText').textContent = `Congratulations! You unlocked the ${building.name}.${coinLine}`;
       document.getElementById('levelModal').classList.add('active');
       document.getElementById('levelBadge').classList.add('bump');
       setTimeout(()=>document.getElementById('levelBadge').classList.remove('bump'), 500);
@@ -1274,7 +2678,11 @@
     function renderApp() {
       dateNavEl.innerHTML = '';
       cardsContainerEl.innerHTML = '';
-      const todayIdx = indexForId(logicalId());
+      // Always resolve "today" by comparing real calendar dates, never by array position.
+      // (Previously this fell back to "the last day in the list" whenever today's actual
+      // date had no entry — e.g. right after deleting today's day — which wrongly unlocked
+      // task-checking on a day that wasn't actually today.)
+      const todayTime = logicalNow().getTime();
 
       if (!dataset.length) {
         dateNavEl.innerHTML = `<div style="text-align:center;color:var(--text-muted);font-size:.82rem;padding:24px 10px;line-height:1.5;">🌷<br>Nothing's been added yet.<br>Tap <b>＋ Add Day</b> to get started.</div>`;
@@ -1290,14 +2698,15 @@
       }
 
       dataset.forEach((dayData, di) => {
+        const isToday = dayData.dObj.getTime() === todayTime;
         const navItem = document.createElement('div');
-        navItem.className = 'date-nav-item' + (di === todayIdx ? ' today' : '');
+        navItem.className = 'date-nav-item' + (isToday ? ' today' : '');
         navItem.id = `nav-${dayData.id}`;
         const dayCompletedCount = dayData.tasks.filter(t => userProgress[t.id]).length;
         const navBadge = dayData.tasks.length ? `${dayCompletedCount}/${dayData.tasks.length}` : '–';
 
         navItem.innerHTML = `
-          <span>${dayData.shortLabel}${di===todayIdx ? ' •' : ''}</span>
+          <span>${dayData.shortLabel}${isToday ? ' •' : ''}</span>
           <span class="badge" id="badge-${dayData.id}">${navBadge}</span>
         `;
         navItem.onclick = () => {
@@ -1317,7 +2726,7 @@
           <div class="day-header">
             <div class="day-date">
               ${dayData.dateString}
-              ${di===todayIdx ? '<span class="today-tag">TODAY</span>' : ''}
+              ${isToday ? '<span class="today-tag">TODAY</span>' : ''}
               ${dayData.dayTagMeta.label ? `<span class="day-priority-tag ${dayData.dayTag}">${dayData.dayTagMeta.label}</span>` : ''}
             </div>
             <div style="display:flex;align-items:center;gap:8px;">
@@ -1331,13 +2740,16 @@
         const taskList = document.createElement('div');
         taskList.className = 'task-list';
 
-        const isFuture = di > todayIdx;
-        const isLockedToday = di === todayIdx && meta.locked;
+        // Compared against the real date, not array position — a day is only ever
+        // "today" (checkable) if its actual calendar date matches right now.
+        const isFuture = dayData.dObj.getTime() > todayTime;
+        const isLockedToday = isToday && meta.locked;
 
         dayData.tasks.forEach((task) => {
           const isChecked = !!userProgress[task.id];
+          // a "missed" task stays checkable — it's flagged (and quietly draining XP) until you tick it.
           const isMissed = !!meta.missed[task.id];
-          const disabled = isFuture || isLockedToday || isMissed;
+          const disabled = isFuture || isLockedToday;
 
           const taskRow = document.createElement('div');
           taskRow.className = `task-item ${isChecked ? 'completed' : ''} ${disabled ? 'locked' : ''} ${isMissed ? 'missed' : ''}`;
@@ -1350,13 +2762,22 @@
 
           const toggleTask = (e) => {
             if (disabled) return;
-            const oldLevel = Math.floor((Object.values(userProgress).filter(Boolean).length * 20) / 100) + 1;
+            const oldLevel = computeXPBreakdown().currentLevel;
             const checked = !userProgress[task.id];
             userProgress[task.id] = checked;
             checkbox.checked = checked;
 
             if (checked) {
               taskRow.classList.add('completed');
+              // ticking a missed task clears its "missed" flag and stops the daily XP decay for it —
+              // it still counts as a completed task from here on.
+              if (meta.missed[task.id]) {
+                delete meta.missed[task.id];
+                delete meta.missedSince[task.id];
+                taskRow.classList.remove('missed');
+                label.querySelector('.missed-flag')?.remove();
+                saveMeta();
+              }
               playSound('check');
               triggerConfetti(e.clientX || window.innerWidth / 2, e.clientY || window.innerHeight / 2);
             } else {
@@ -1368,8 +2789,8 @@
             document.getElementById(`badge-${dayData.id}`).textContent = `${currentCompleted}/${dayData.tasks.length}`;
             document.getElementById(`status-${dayData.id}`).textContent = `${currentCompleted} of ${dayData.tasks.length} completed`;
 
-            const { currentLevel, b } = updateGamification();
-            if (checked && currentLevel > oldLevel) showLevelUpModal(b);
+            const { currentLevel, b, coinsEarned } = updateGamification();
+            if (checked && currentLevel > oldLevel) showLevelUpModal(b, coinsEarned);
             if (checked && currentCompleted === dayData.tasks.length) {
               playSound('day');
               setTimeout(() => triggerConfetti(window.innerWidth/2, window.innerHeight*0.35, { particleCount: 90, spread: 110 }), 150);
@@ -1443,17 +2864,20 @@
         card.querySelector('[data-delete-day]')?.addEventListener('click', (e) => {
           e.stopPropagation();
           const n = dayData.tasks.length;
-          const confirmMsg = n > 0
-            ? `Delete ${dayData.dateString}? This will also delete its ${n} task${n === 1 ? '' : 's'} and all progress on it. This can't be undone.`
-            : `Delete ${dayData.dateString}? This can't be undone.`;
-          if (confirm(confirmMsg)) {
+          if (n > 0) {
+            showInfo(`This day still has ${n} task${n === 1 ? '' : 's'} in it. Delete (or finish) all of its tasks first, then you can delete the day itself.`, "Can't delete yet");
+            return;
+          }
+          showConfirm(`Delete ${dayData.dateString}? This can't be undone.`, () => {
             const result = deleteDay(dayData.id);
             if (result.ok) {
               playSound('uncheck');
               renderApp();
               renderMini();
+            } else {
+              showInfo("This day still has tasks in it, so it can't be deleted yet.", "Can't delete yet");
             }
-          }
+          }, 'Delete this day?');
         });
         card.querySelector('[data-tag-cycle]')?.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -1477,8 +2901,9 @@
        MINI GROCERY-LIST WIDGET RENDER
        ============================================================ */
     function renderMini() {
-      const todayIdx = indexForId(logicalId());
-      const day = dataset[todayIdx];
+      // Exact date match only — never fall back to "whatever day is last in the list".
+      const todayTime = logicalNow().getTime();
+      const day = dataset.find(d => d.dObj.getTime() === todayTime);
 
       if (!day) {
         miniDate.textContent = 'No day yet';
@@ -1507,7 +2932,7 @@
       day.tasks.forEach((task, ti) => {
         const isChecked = !!userProgress[task.id];
         const isMissed = !!meta.missed[task.id];
-        const disabled = locked || isMissed;
+        const disabled = locked;
         if (isChecked) doneCount++;
 
         const row = document.createElement('div');
@@ -1522,15 +2947,20 @@
 
         const toggle = (e) => {
           if (disabled) return;
-          const oldLevel = Math.floor((Object.values(userProgress).filter(Boolean).length * 20) / 100) + 1;
+          const oldLevel = computeXPBreakdown().currentLevel;
           const checked = !userProgress[task.id];
           userProgress[task.id] = checked;
           cb.checked = checked;
           row.classList.toggle('completed', checked);
+          if (checked && meta.missed[task.id]) {
+            delete meta.missed[task.id];
+            delete meta.missedSince[task.id];
+            saveMeta();
+          }
           playSound(checked ? 'check' : 'uncheck');
           if (checked) triggerConfetti(e.clientX || window.innerWidth/2, e.clientY || window.innerHeight/2, { particleCount: 16, spread: 45 });
-          const { currentLevel, b } = updateGamification();
-          if (checked && currentLevel > oldLevel) showLevelUpModal(b);
+          const { currentLevel, b, coinsEarned } = updateGamification();
+          if (checked && currentLevel > oldLevel) showLevelUpModal(b, coinsEarned);
           saveProgress();
           renderMini();
         };
@@ -1700,9 +3130,10 @@
 
     // scroll to today's card on load
     setTimeout(() => {
-      const todayIdx = indexForId(logicalId());
-      if (todayIdx < 0) return;
-      const el = document.getElementById(dataset[todayIdx].id);
+      const todayTime = logicalNow().getTime();
+      const todayDay = dataset.find(d => d.dObj.getTime() === todayTime);
+      if (!todayDay) return;
+      const el = document.getElementById(todayDay.id);
       if (el) el.scrollIntoView({ block: 'start' });
     }, 60);
 
@@ -1791,9 +3222,15 @@
         chip.addEventListener('click', (e) => {
           e.preventDefault();
           const key = chip.dataset.key;
+          const oldLevel = computeXPBreakdown().currentLevel;
           const newLvl = ((papersLevel[key] || 0) + 1) % 4;
           papersLevel[key] = newLvl;
           savePapers();
+
+          // Paper 1st completion = +10 XP, 2nd = +20 more (30 total), mastery (3rd) = +30 more (60 total).
+          // Cycling back to 0 and re-clicking never re-grants — awardPaperXP only pays the *delta* above
+          // whatever this exact paper has already earned, so there's no XP-farming loop here either.
+          awardPaperXP(key, newLvl);
 
           chip.classList.remove('lvl-1', 'lvl-2', 'lvl-3');
           if (newLvl > 0) chip.classList.add(`lvl-${newLvl}`);
@@ -1805,6 +3242,10 @@
           } else {
             playSound(newLvl > 0 ? 'check' : 'uncheck');
           }
+
+          const { currentLevel, b, coinsEarned } = updateGamification();
+          renderMini();
+          if (currentLevel > oldLevel) showLevelUpModal(b, coinsEarned);
 
           const subjEl = chip.closest('.papers-subject');
           const subjCode = subjEl.dataset.subjCode;
