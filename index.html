@@ -1104,6 +1104,7 @@
       z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s;
     }
     .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    #confirmModal { z-index: 110; }
     .modal-card {
       background: var(--card-bg); border: 1px solid var(--accent-purple);
       border-radius: 24px; padding: 36px; text-align: center;
@@ -1127,6 +1128,29 @@
     }
     .modal-btn:hover { transform: scale(1.05); }
     .modal-btn.warn { background: linear-gradient(135deg, var(--accent-red), #e8b975); }
+    .modal-btn:disabled { opacity: .4; cursor: not-allowed; transform: none !important; }
+
+    /* ---------------- subject selection (first-run) modal ---------------- */
+    .subject-select-warning {
+      background: rgba(232,120,120,.12); border: 1px solid var(--accent-red);
+      color: var(--accent-red); font-size: .78rem; font-weight: 700;
+      padding: 10px 12px; border-radius: 12px; margin-bottom: 16px; text-align: center; line-height: 1.4;
+    }
+    .subject-select-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 6px; }
+    .subject-select-chip {
+      display: flex; align-items: center; gap: 8px; padding: 12px 14px;
+      border: 2px solid var(--border); border-radius: 14px; background: var(--task-bg);
+      cursor: pointer; transition: transform .15s, border-color .15s, background .15s;
+      font-weight: 700; font-size: .86rem; color: var(--text-main); user-select: none;
+    }
+    .subject-select-chip:hover { transform: translateY(-2px); }
+    .subject-select-chip.selected {
+      border-color: var(--accent-purple);
+      background: linear-gradient(135deg, color-mix(in srgb, var(--accent-purple) 20%, transparent), color-mix(in srgb, var(--accent-blue) 20%, transparent));
+    }
+    .subject-select-chip.disabled { opacity: .4; cursor: not-allowed; transform: none; }
+    .subject-select-chip .sel-emoji { font-size: 1.25rem; }
+    .subject-select-count { text-align: center; font-size: .78rem; color: var(--text-muted); font-weight: 700; margin-top: 8px; }
 
     /* ---------------- papers tracker drawer ---------------- */
     .papers-overlay {
@@ -1900,13 +1924,17 @@
 
   <div class="modal-overlay" id="stackModal">
     <div class="modal-card" style="text-align:left;">
-      <h2 style="text-align:center;">Stack Import</h2>
-      <p style="text-align:center;">Pick two dates and every day between them will be created.</p>
+      <h2 style="text-align:center;">Stack Days</h2>
+      <p style="text-align:center;">Paste tasks below to create days with tasks already in them, or leave it blank to just create empty days between two dates.</p>
       <label style="display:block;font-size:.8rem;color:var(--text-muted);margin-bottom:6px;">Start date</label>
       <input id="stackStartInput" type="date" class="add-task-input" style="width:100%;margin-bottom:12px;">
-      <label style="display:block;font-size:.8rem;color:var(--text-muted);margin-bottom:6px;">End date</label>
-      <input id="stackEndInput" type="date" class="add-task-input" style="width:100%;margin-bottom:12px;">
-      <label style="display:block;font-size:.8rem;color:var(--text-muted);margin-bottom:6px;">Tag for all created days</label>
+      <div id="stackEndWrap">
+        <label style="display:block;font-size:.8rem;color:var(--text-muted);margin-bottom:6px;">End date</label>
+        <input id="stackEndInput" type="date" class="add-task-input" style="width:100%;margin-bottom:12px;">
+      </div>
+      <label style="display:block;font-size:.8rem;color:var(--text-muted);margin-bottom:6px;">Tasks (optional) — <code>,</code> = same day, <code>-</code> = start a new day. <code>bio#</code> / <code>chem#</code> sets the category and it sticks until you switch it again.</label>
+      <textarea id="stackTasksInput" class="add-task-input" style="width:100%;min-height:110px;resize:vertical;margin-bottom:12px;" placeholder="bio# do past paper 1, do past paper 2, revise chapter 3, chem# do past paper 5-do past paper 1, revise chapter 2-bio# do past paper 4, do past paper 5"></textarea>
+      <label style="display:block;font-size:.8rem;color:var(--text-muted);margin-bottom:6px;">Tag for created days</label>
       <select id="stackTagInput" class="add-task-select" style="width:100%;margin-bottom:18px;">
         <option value="none">No tag</option>
         <option value="low">Low priority</option>
@@ -1914,10 +1942,11 @@
         <option value="high">High priority</option>
         <option value="critical">🔥 Critical / most important</option>
       </select>
-      <div style="display:flex;gap:8px;">
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
         <button class="modal-btn" id="saveStackBtn" style="flex:1;">Create Days</button>
         <button class="modal-btn" id="cancelStackBtn" style="flex:1;background:var(--border);">Cancel</button>
       </div>
+      <button class="modal-btn" id="stackClearEmptyBtn" style="width:100%;background:var(--border);">🗑️ Delete Empty Days</button>
     </div>
   </div>
 
@@ -1947,10 +1976,7 @@
         <button class="papers-close" id="papersCloseBtn">✕</button>
       </div>
       <div style="padding:12px 20px 0;color:var(--text-muted);font-size:.76rem;line-height:1.45;">Tap a paper each time you complete it: ✓ done → ★ redone → ✨ mastered.</div>
-      <div class="papers-tabs" id="papersTabs">
-        <button class="papers-tab active" data-subj="bio">🧬 Bio</button>
-        <button class="papers-tab" data-subj="chem">⚗️ Chem</button>
-      </div>
+      <div class="papers-tabs" id="papersTabs"></div>
       <div class="papers-body" id="papersBody"></div>
     </div>
   </div>
@@ -2015,6 +2041,20 @@
       <h2 id="infoModalTitle">Heads up</h2>
       <p id="infoModalMessage"></p>
       <button class="modal-btn" id="infoModalOkBtn">Got it</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="subjectSelectModal">
+    <div class="modal-card" style="text-align:left;max-width:520px;width:min(520px,92vw);">
+      <div style="text-align:center;">
+        <div class="modal-icon">📚</div>
+        <h2 style="text-align:center;">Choose Your Subjects</h2>
+        <p style="text-align:center;margin-bottom:14px;">Choose your study subjects at the start. They will appear in the task subject picker and Past Papers. <strong>Gen is always available.</strong> You can also add a custom lowercase subject code.</p>
+      </div>
+      <div class="subject-select-warning">⚠️ Choose carefully. These become your available task subjects; you can add more lowercase subject codes later in Settings.</div>
+      <div class="subject-select-grid" id="subjectSelectGrid"></div>
+      <div class="subject-select-count" id="subjectSelectCount">0 / 4 selected</div>
+      <button class="modal-btn" id="subjectSelectConfirmBtn" style="width:100%;margin-top:14px;" disabled>Confirm Selection</button>
     </div>
   </div>
 
@@ -2170,7 +2210,7 @@
       { lvl: 97, name: 'Zenith Absolute', icon: '💫', desc: 'The highest point this journey has to offer — almost.' },
       { lvl: 98, name: 'Apex of Ascension', icon: '💫', desc: 'One level stands between you and the very top.' },
       { lvl: 99, name: 'The Final Ascent', icon: '💫', desc: 'Everything before this was leading here.' },
-      { lvl: 100, name: 'MASTERMIND', icon: '👑', desc: 'The absolute pinnacle of Hafsah\'s Study HQ — the final stage. There is nothing beyond this.' }
+      { lvl: 100, name: 'THE HAFSAH', icon: '👑', desc: 'The absolute pinnacle of Hafsah\'s Study HQ — the final stage. There is nothing beyond this.' }
     ];
     // Sanity-check once at load: 100 unique levels, no gaps, no duplicate lvl values.
     // (Left in deliberately cheap — runs once, not per-render.)
@@ -2998,7 +3038,7 @@
           const viewportWidth = reel.parentElement.clientWidth;
           const jitter = (Math.random() * 50) - 25; // lands slightly off-center within the winning cell, like a real case
           const targetOffset = (CASE_WINNER_INDEX * CASE_CELL_FULL_WIDTH) + (CASE_CELL_FULL_WIDTH / 2) - (viewportWidth / 2) - jitter;
-          const caseMs={common:4200,rare:5000,epic:5900,legendary:7000,super_rare:7900,secret:9000,ultra_secret:10500}[item.rarity]||5000; reel.style.transition=`transform ${caseMs}ms cubic-bezier(.08,.78,.12,1)`;
+          const caseMs={common:3200,rare:3800,epic:4500,legendary:5400,super_rare:6100,secret:7000,ultra_secret:8200}[item.rarity]||3800; reel.style.transition=`transform ${caseMs}ms cubic-bezier(.08,.78,.12,1)`;
           reel.style.transform = `translateX(${-targetOffset}px)`;
         });
       });
@@ -3275,36 +3315,6 @@
       return logicalNow() < dataset[0].dObj ? 0 : dataset.length - 1;
     }
 
-    function recalculateStudyStreak() {
-      // A study day is a day with at least one task where every task is completed.
-      // Empty days are ignored; missing/unfinished task days break the consecutive run.
-      const byId = {};
-      dataset.forEach(d => { byId[d.id] = d; });
-      const today = logicalNow();
-      const start = new Date(today);
-      let streak = 0;
-      // If today exists and is a study day, count it; otherwise start with the most recent prior day.
-      let cursor = new Date(start);
-      const todayData = byId[dateId(cursor)];
-      if (!todayData || !todayData.tasks.length || !todayData.tasks.every(t => !!userProgress[t.id])) {
-        cursor.setDate(cursor.getDate() - 1);
-      }
-      // Walk backward over actual calendar days. Empty days do not count and do not break the run.
-      // A day containing tasks must be fully completed to continue the streak.
-      for (let guard = 0; guard < 3660; guard++) {
-        const id = dateId(cursor);
-        const d = byId[id];
-        if (!d) { cursor.setDate(cursor.getDate() - 1); continue; }
-        if (!d.tasks.length) { cursor.setDate(cursor.getDate() - 1); continue; }
-        if (d.tasks.every(t => !!userProgress[t.id])) { streak++; cursor.setDate(cursor.getDate() - 1); continue; }
-        break;
-      }
-      meta.streak = streak;
-      meta.lastActiveDate = logicalId();
-      saveMeta();
-      return streak;
-    }
-
     function processRollover() {
       const todayId = logicalId();
       if (!meta.lastActiveDate) { meta.lastActiveDate = todayId; saveMeta(); return; }
@@ -3336,7 +3346,6 @@
       meta.lastActiveDate = todayId;
       if (anyNewMiss) meta.locked = true;
       saveMeta();
-      recalculateStudyStreak();
     }
     processRollover();
 
@@ -3571,8 +3580,6 @@
             }
 
             saveProgress();
-            recalculateStudyStreak();
-            updateGamification();
             renderMini();
           };
 
@@ -3874,20 +3881,39 @@
       setTimeout(() => document.getElementById(id)?.scrollIntoView({behavior:'smooth'}), 50);
     });
 
+    const stackTasksInput = document.getElementById('stackTasksInput');
+    const stackEndWrap = document.getElementById('stackEndWrap');
+    function syncStackEndVisibility() {
+      stackEndWrap.style.display = stackTasksInput.value.trim() ? 'none' : 'block';
+    }
+    stackTasksInput.addEventListener('input', syncStackEndVisibility);
+
     document.getElementById('stackDaysBtn').addEventListener('click', () => {
       document.getElementById('stackStartInput').value = todayISO();
       document.getElementById('stackEndInput').value = todayISO();
       document.getElementById('stackTagInput').value = 'none';
+      stackTasksInput.value = '';
+      syncStackEndVisibility();
       stackModal.classList.add('active');
     });
     document.getElementById('cancelStackBtn').addEventListener('click', () => stackModal.classList.remove('active'));
     document.getElementById('saveStackBtn').addEventListener('click', () => {
       const start = document.getElementById('stackStartInput').value;
+      const tag = document.getElementById('stackTagInput').value;
+      const pasted = stackTasksInput.value;
+      if (pasted.trim()) {
+        importIntoNewDays(pasted, start, tag);
+        stackModal.classList.remove('active');
+        return;
+      }
       const end = document.getElementById('stackEndInput').value;
       if (!start || !end) return;
-      addDateRange(start, end, document.getElementById('stackTagInput').value);
+      addDateRange(start, end, tag);
       stackModal.classList.remove('active');
       renderApp(); renderMini();
+    });
+    document.getElementById('stackClearEmptyBtn').addEventListener('click', () => {
+      showConfirm('This will remove every day with no tasks. Days containing tasks will not be affected.', () => clearEmptyDays(), 'CLEAR EMPTY DAYS?', 'Yes, Delete');
     });
 
     /* ============================================================
@@ -3921,23 +3947,112 @@
     let papersLevel = JSON.parse(localStorage.getItem(PAPERS_KEY)) || {};
     function savePapers() { localStorage.setItem(PAPERS_KEY, JSON.stringify(papersLevel)); }
 
-    const PAPER_SUBJECTS = {
-      bio: [
-        { code: 'B1', name: 'Biology Unit 1' },
-        { code: 'B2', name: 'Biology Unit 2' },
-        { code: 'B3', name: 'Biology Unit 3' }
-      ],
-      chem: [
-        { code: 'C1', name: 'Chemistry Unit 1' },
-        { code: 'C2', name: 'Chemistry Unit 2' },
-        { code: 'C3', name: 'Chemistry Unit 3' }
-      ]
+    const SUBJECT_DEFS = {
+      math:    { label: 'Math',    fullName: 'Mathematics',      emoji: '📐', code: 'M'   },
+      bio:     { label: 'Bio',     fullName: 'Biology',          emoji: '🧬', code: 'B'   },
+      physics: { label: 'Physics', fullName: 'Physics',          emoji: '⚛️', code: 'PHY' },
+      cs:      { label: 'CS',      fullName: 'Computer Science', emoji: '💻', code: 'CS'  },
+      chem:    { label: 'Chem',    fullName: 'Chemistry',        emoji: '⚗️', code: 'C'   },
+      psych:   { label: 'Psych',   fullName: 'Psychology',       emoji: '🧠', code: 'PSY' }
     };
+    const MAX_SUBJECTS = 4;
+    const SUBJECT_SELECTION_KEY = 'hafsah_subject_selection_v1';
+
+    // Every subject gets 6 units, each with the same set of past papers.
+    const PAPER_SUBJECTS = {};
+    Object.keys(SUBJECT_DEFS).forEach(key => {
+      const d = SUBJECT_DEFS[key];
+      PAPER_SUBJECTS[key] = [];
+      for (let u = 1; u <= 6; u++) {
+        PAPER_SUBJECTS[key].push({ code: `${d.code}${u}`, name: `${d.fullName} Unit ${u}` });
+      }
+    });
+
     const PAPER_SESSIONS = ['Jan', 'June', 'Oct'];
     const PAPER_YEARS = [2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026];
     const MASTERY_ICONS = ['', '✓', '★', '✨'];
 
-    let papersActiveTab = 'bio';
+    let papersActiveTab = null;
+
+    function getSelectedSubjects() {
+      try {
+        const raw = JSON.parse(localStorage.getItem(SUBJECT_SELECTION_KEY));
+        return (Array.isArray(raw) && raw.length) ? raw.filter(k => SUBJECT_DEFS[k]) : null;
+      } catch (e) { return null; }
+    }
+    function saveSelectedSubjects(list) {
+      localStorage.setItem(SUBJECT_SELECTION_KEY, JSON.stringify(list));
+    }
+
+    function renderPapersTabs() {
+      const wrap = document.getElementById('papersTabs');
+      if (!wrap) return;
+      const selected = getSelectedSubjects() || [];
+      wrap.innerHTML = selected.map(key => {
+        const d = SUBJECT_DEFS[key];
+        return `<button class="papers-tab${key === papersActiveTab ? ' active' : ''}" data-subj="${key}">${d.emoji} ${d.label}</button>`;
+      }).join('');
+    }
+
+    /* ---------------- first-run subject selection popup ---------------- */
+    let pendingSubjectPicks = [];
+    function renderSubjectSelectGrid() {
+      const grid = document.getElementById('subjectSelectGrid');
+      if (!grid) return;
+      grid.innerHTML = Object.keys(SUBJECT_DEFS).map(key => {
+        const d = SUBJECT_DEFS[key];
+        const isSelected = pendingSubjectPicks.includes(key);
+        const isDisabled = !isSelected && pendingSubjectPicks.length >= MAX_SUBJECTS;
+        return `<div class="subject-select-chip${isSelected ? ' selected' : ''}${isDisabled ? ' disabled' : ''}" data-subj="${key}">
+          <span class="sel-emoji">${d.emoji}</span><span>${d.fullName}</span>
+        </div>`;
+      }).join('');
+      const countEl = document.getElementById('subjectSelectCount');
+      if (countEl) countEl.textContent = `${pendingSubjectPicks.length} / ${MAX_SUBJECTS} selected`;
+      const confirmBtn = document.getElementById('subjectSelectConfirmBtn');
+      if (confirmBtn) confirmBtn.disabled = pendingSubjectPicks.length === 0;
+      grid.querySelectorAll('.subject-select-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          const key = chip.dataset.subj;
+          if (pendingSubjectPicks.includes(key)) {
+            pendingSubjectPicks = pendingSubjectPicks.filter(k => k !== key);
+          } else if (pendingSubjectPicks.length < MAX_SUBJECTS) {
+            pendingSubjectPicks.push(key);
+          } else {
+            return;
+          }
+          renderSubjectSelectGrid();
+        });
+      });
+    }
+    function openSubjectSelectModal() {
+      const modal = document.getElementById('subjectSelectModal');
+      if (!modal) return;
+      pendingSubjectPicks = [];
+      renderSubjectSelectGrid();
+      modal.classList.add('active');
+    }
+    document.getElementById('subjectSelectConfirmBtn')?.addEventListener('click', () => {
+      if (!pendingSubjectPicks.length) return;
+      showConfirm(
+        `Lock in ${pendingSubjectPicks.map(k => SUBJECT_DEFS[k].fullName).join(', ')} for your Past Papers menu? This can't be changed later.`,
+        () => {
+          saveSelectedSubjects(pendingSubjectPicks);
+          papersActiveTab = pendingSubjectPicks[0];
+          document.getElementById('subjectSelectModal')?.classList.remove('active');
+        },
+        'CONFIRM SUBJECTS?',
+        'Yes, Lock In'
+      );
+    });
+    function initSubjectSelection() {
+      const selected = getSelectedSubjects();
+      if (!selected) {
+        openSubjectSelectModal();
+      } else {
+        papersActiveTab = selected[0];
+      }
+    }
 
     function paperKey(subjCode, year, session) { return `${subjCode}_${year}_${session}`; }
     function allKeysFor(subjCode) {
@@ -4038,6 +4153,13 @@
     const papersOverlay = document.getElementById('papersOverlay');
     function openPapers() {
       if (!papersOverlay) return;
+      const selected = getSelectedSubjects();
+      if (!selected || !selected.length) {
+        openSubjectSelectModal();
+        return;
+      }
+      if (!papersActiveTab || !selected.includes(papersActiveTab)) papersActiveTab = selected[0];
+      renderPapersTabs();
       renderPapersDrawer();
       papersOverlay.classList.add('active');
       document.body.classList.add('papers-open');
@@ -4062,6 +4184,10 @@
       document.querySelectorAll('.papers-tab').forEach(t => t.classList.toggle('active', t === btn));
       renderPapersDrawer();
     });
+
+    // Show the first-run subject picker on load, and keep reappearing next time
+    // the app is opened until a selection has actually been saved.
+    initSubjectSelection();
 
     /* ============================================================
        MOBILE SIDEBAR (hamburger drawer)
@@ -4166,9 +4292,45 @@
     if(changed)saveDailyShop();
   };
 window.clearEmptyDays=function(){const ids=[...new Set([...Object.keys(daysMeta),...Object.keys(tasksByDate)])];let removed=0;ids.forEach(id=>{if((tasksByDate[id]||[]).length===0){delete tasksByDate[id];delete daysMeta[id];removed++}});saveTasks();saveDays();rebuildDataset();renderApp();renderMini();showInfo(`${removed} empty day${removed===1?'':'s'} cleared. Days containing tasks were kept.`, 'Empty days cleared');}
-  // Task import parser API and UI. Hyphen = day, comma = task, category# persists.
-  window.parseStudyHQImport=function(input){const out=[];let category='GEN';String(input||'').split('-').forEach(part=>{part=part.trim();if(!part)return;const m=part.match(/^([A-Za-z][A-Za-z0-9 _-]*)#\s*(.*)$/);if(m){const key=m[1].trim().toUpperCase();category=key==='BIO'?'BIO':key==='CHEM'?'CHEM':'GEN';part=m[2].trim()}const tasks=part.split(',').map(x=>x.trim()).filter(Boolean);if(tasks.length)out.push({category,tasks})});return out};
-  function importIntoNewDays(input){const parsed=parseStudyHQImport(input);if(!parsed.length){showInfo('Nothing to import. Use commas for tasks on the same day and hyphens for new days.','Import empty');return}let d=todayMidnight();parsed.forEach((day,i)=>{if(i)d.setDate(d.getDate()+1);const id=dateId(d);ensureDay(id);day.tasks.forEach(t=>addTask(id,t,day.category))});renderApp();renderMini();showInfo(`Imported ${parsed.reduce((n,d)=>n+d.tasks.length,0)} tasks across ${parsed.length} day${parsed.length===1?'':'s'}.`,'Import complete')}
+  // Task import parser API and UI. Hyphen = new day, comma = task on that day,
+  // category# (e.g. bio#, chem#) sets the running category and persists — across
+  // commas AND across day-hyphens — until another category# appears.
+  window.parseStudyHQImport=function(input){
+    const days=[];
+    let category='GEN';
+    String(input||'').split('-').forEach(dayPart=>{
+      const items=dayPart.split(',').map(x=>x.trim()).filter(Boolean);
+      const tasks=[];
+      items.forEach(item=>{
+        const m=item.match(/^([A-Za-z][A-Za-z0-9 _]*)#\s*(.*)$/);
+        if(m){
+          const key=m[1].trim().toUpperCase();
+          category=key==='BIO'?'BIO':key==='CHEM'?'CHEM':'GEN';
+          item=m[2].trim();
+        }
+        if(item) tasks.push({category,text:item});
+      });
+      if(tasks.length) days.push({tasks});
+    });
+    return days;
+  };
+  window.importIntoNewDays=function(input,startValue,tag){
+    const parsed=parseStudyHQImport(input);
+    if(!parsed.length){showInfo('Nothing to import. Use commas for tasks on the same day and hyphens to start a new day.','Import empty');return}
+    let d;
+    if(startValue){const [y,m,day]=startValue.split('-').map(Number);d=new Date(y,m-1,day)}
+    else d=todayMidnight();
+    parsed.forEach((day,i)=>{
+      if(i)d.setDate(d.getDate()+1);
+      const id=dateId(d);
+      ensureDay(id,tag||'none');
+      if(tag) daysMeta[id].tag=tag;
+      day.tasks.forEach(t=>addTask(id,t.text,t.category));
+    });
+    saveDays();
+    renderApp();renderMini();
+    showInfo(`Imported ${parsed.reduce((n,d)=>n+d.tasks.length,0)} tasks across ${parsed.length} day${parsed.length===1?'':'s'}.`,'Import complete')
+  }
   // Winding "level road" map (Brawl Stars trophy-road style). Opened by clicking the
   // town building card, NOT the level badge — the old badge-click journey screen was
   // removed on purpose and stays removed. This is a separate, opt-in feature.
@@ -4217,7 +4379,7 @@ window.clearEmptyDays=function(){const ids=[...new Set([...Object.keys(daysMeta)
             <div>
               <div class="lroad-kicker">STUDY HQ · GARDEN ROAD</div>
               <h2>LEVEL MAP</h2>
-              <p>Drag or scroll to explore every stage, from <b>Little Seedling</b> to <b>MASTERMIND</b>.</p>
+              <p>Scroll to explore every stage, from <b>Little Seedling</b> to <b>THE HAFSAH</b>.</p>
             </div>
             <button class="papers-close" id="lroadClose">✕</button>
           </div>
@@ -4316,8 +4478,6 @@ window.clearEmptyDays=function(){const ids=[...new Set([...Object.keys(daysMeta)
       }
     }, 30);
   }
-  document.getElementById('levelBadge')?.addEventListener('click', openLevelRoad);
-  document.getElementById('levelBadge')?.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLevelRoad(); } });
   document.getElementById('townBuildingCard')?.addEventListener('click', openLevelRoad);
   document.getElementById('townBuildingCard')?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLevelRoad(); }
@@ -4392,4 +4552,1205 @@ window.clearEmptyDays=function(){const ids=[...new Set([...Object.keys(daysMeta)
   setInterval(settlePassiveIncome,60000);
 })();
 </script>
+
+<script>
+/* ============================================================
+   STUDY HQ — FINAL PROGRESSION / SUBJECT / STREAK PATCH
+   This layer intentionally builds on the existing app instead of removing
+   working systems. It makes subject selection the source of truth for tasks,
+   imports and settings, and upgrades progression/streak/title behavior.
+   ============================================================ */
+(function(){
+  /* ---------- subject configuration ---------- */
+  const SUBJECTS_KEY = 'hafsah_subjects_v2';
+  const LEGACY_SUBJECT_MAP = { BIO:'bio', CHEM:'chem', GEN:'gen', Bio:'bio', Chem:'chem', Gen:'gen' };
+  const SUBJECT_PRESETS = {
+    bio:{label:'Bio',fullName:'Biology',emoji:'🧬',code:'B'},
+    chem:{label:'Chem',fullName:'Chemistry',emoji:'⚗️',code:'C'},
+    compsci:{label:'CompSci',fullName:'Computer Science',emoji:'💻',code:'CS'},
+    phys:{label:'Phys',fullName:'Physics',emoji:'⚛️',code:'PHY'},
+    math:{label:'Math',fullName:'Mathematics',emoji:'📐',code:'M'},
+    psych:{label:'Psych',fullName:'Psychology',emoji:'🧠',code:'PSY'},
+    history:{label:'History',fullName:'History',emoji:'📜',code:'HIS'},
+    english:{label:'English',fullName:'English',emoji:'📚',code:'ENG'},
+    geography:{label:'Geography',fullName:'Geography',emoji:'🌍',code:'GEO'},
+    economics:{label:'Economics',fullName:'Economics',emoji:'📈',code:'ECO'},
+    business:{label:'Business',fullName:'Business',emoji:'💼',code:'BUS'},
+    art:{label:'Art',fullName:'Art',emoji:'🎨',code:'ART'},
+    gen:{label:'Gen',fullName:'General',emoji:'📌',code:'GEN'}
+  };
+  // Extend the existing paper catalogue so chosen task subjects can also be represented.
+  Object.keys(SUBJECT_PRESETS).forEach(k=>{
+    if(k==='gen') return;
+    if(!SUBJECT_DEFS[k]) SUBJECT_DEFS[k]=SUBJECT_PRESETS[k];
+    if(!PAPER_SUBJECTS[k]){
+      const d=SUBJECT_PRESETS[k];
+      PAPER_SUBJECTS[k]=[];
+      for(let u=1;u<=6;u++) PAPER_SUBJECTS[k].push({code:`${d.code}${u}`,name:`${d.fullName} Unit ${u}`});
+    }
+  });
+  SUBJECT_META.gen={tag:'tag-subject',label:'Gen'};
+  SUBJECT_META.bio={tag:'tag-bio',label:'Bio'};
+  SUBJECT_META.chem={tag:'tag-chem',label:'Chem'};
+  Object.keys(SUBJECT_PRESETS).forEach(k=>{
+    const d=SUBJECT_PRESETS[k];
+    if(!SUBJECT_META[k]) SUBJECT_META[k]={tag:k==='gen'?'tag-gen':'tag-subject',label:d.label};
+  });
+
+  function validCode(s){ return /^[a-z][a-z0-9_-]*$/.test(s); }
+  function normalizeSubjectList(list){
+    const out=[];
+    (Array.isArray(list)?list:[]).forEach(raw=>{
+      let k=String(raw||'').trim();
+      if(LEGACY_SUBJECT_MAP[k]) k=LEGACY_SUBJECT_MAP[k];
+      if(k==='cs') k='compsci';
+      if(k==='physics') k='phys';
+      if(!validCode(k)) return;
+      if(!SUBJECT_META[k]) SUBJECT_META[k]={tag:'tag-subject',label:k};
+      if(!out.includes(k) && k!=='gen') out.push(k);
+    });
+    // Gen is always available, but is not forced into the selected-subject count.
+    return out;
+  }
+  let configuredSubjects=[];
+  try{ configuredSubjects=normalizeSubjectList(JSON.parse(localStorage.getItem(SUBJECTS_KEY)||'[]')); }catch(e){ configuredSubjects=[]; }
+  if(!configuredSubjects.length){
+    const legacy=['bio','chem'];
+    try{
+      const old=JSON.parse(localStorage.getItem(SUBJECT_SELECTION_KEY)||'[]');
+      configuredSubjects=normalizeSubjectList(old.length?old:legacy);
+    }catch(e){configuredSubjects=legacy;}
+  }
+  if(!configuredSubjects.length) configuredSubjects=['bio','chem'];
+  function saveConfiguredSubjects(){localStorage.setItem(SUBJECTS_KEY,JSON.stringify(configuredSubjects));}
+  saveConfiguredSubjects();
+  window.getStudySubjects=()=>[...configuredSubjects,'gen'];
+
+  function subjectMetaFor(k){
+    const key=String(k||'gen');
+    return SUBJECT_META[key] || {tag:'tag-subject',label:key};
+  }
+  function renderSubjectDropdowns(){
+    const keys=window.getStudySubjects();
+    document.querySelectorAll('.add-task-select').forEach(sel=>{
+      if(sel.id==='dayTagInput'||sel.id==='stackTagInput') return;
+      const current=String(sel.value||'gen');
+      sel.innerHTML=keys.map(k=>{
+        const d=SUBJECT_PRESETS[k]||{label:k,emoji:'📘'};
+        return `<option value="${k}">${d.emoji||'📘'} ${d.label||k}</option>`;
+      }).join('');
+      sel.value=keys.includes(current)?current:'gen';
+    });
+  }
+  window.renderStudySubjectDropdowns=renderSubjectDropdowns;
+
+  /* ---------- first-run subject chooser: chosen subjects drive task dropdowns ---------- */
+  function renderChosenSubjectPicker(){
+    const grid=document.getElementById('subjectSelectGrid');
+    if(!grid) return;
+    const selected=new Set(pendingSubjectPicks.filter(k=>k!=='gen'));
+    const keys=Object.keys(SUBJECT_PRESETS).filter(k=>k!=='gen');
+    grid.innerHTML=keys.map(k=>{
+      const d=SUBJECT_PRESETS[k]; const yes=selected.has(k);
+      return `<div class="subject-select-chip ${yes?'selected':''}" data-subj="${k}"><span class="sel-emoji">${d.emoji}</span><span>${d.fullName}<small style="display:block;color:var(--text-muted);font-size:.65rem;margin-top:2px">${k}#</small></span></div>`;
+    }).join('') + `<div class="subject-custom-row"><input id="customSubjectCode" class="add-task-input" placeholder="Custom subject code e.g. biology" autocomplete="off"><button type="button" class="add-task-btn" id="addCustomSubjectBtn">+ Add</button></div>`;
+    const count=document.getElementById('subjectSelectCount'); if(count) count.textContent=`${selected.size} selected · Gen always available`;
+    const confirm=document.getElementById('subjectSelectConfirmBtn'); if(confirm) confirm.disabled=selected.size===0;
+    grid.querySelectorAll('.subject-select-chip').forEach(chip=>chip.onclick=()=>{
+      const k=chip.dataset.subj;
+      if(selected.has(k)) pendingSubjectPicks=pendingSubjectPicks.filter(x=>x!==k); else pendingSubjectPicks.push(k);
+      renderChosenSubjectPicker();
+    });
+    document.getElementById('addCustomSubjectBtn')?.addEventListener('click',()=>{
+      const inp=document.getElementById('customSubjectCode'); const k=(inp?.value||'').trim();
+      if(!validCode(k) || k==='gen' || k.includes(' ')){ showInfo('Use a lowercase subject code with no spaces, such as compsci or phys.','Invalid subject code'); return; }
+      SUBJECT_META[k]={tag:'tag-subject',label:k};
+      SUBJECT_PRESETS[k]={label:k,fullName:k,emoji:'📘',code:k.toUpperCase().slice(0,4)};
+      if(!PAPER_SUBJECTS[k]){PAPER_SUBJECTS[k]=[];for(let u=1;u<=6;u++)PAPER_SUBJECTS[k].push({code:`${SUBJECT_PRESETS[k].code}${u}`,name:`${k} Unit ${u}`});}
+      if(!pendingSubjectPicks.includes(k)) pendingSubjectPicks.push(k);
+      renderChosenSubjectPicker();
+    });
+  }
+  // Existing picker is intentionally shown at startup. Replace its behavior so Gen is
+  // always available and custom/expanded subjects can be selected.
+  const oldOpenSubjectSelectModal=openSubjectSelectModal;
+  openSubjectSelectModal=function(){
+    const modal=document.getElementById('subjectSelectModal'); if(!modal)return;
+    pendingSubjectPicks=[...configuredSubjects];
+    renderChosenSubjectPicker();
+    modal.classList.add('active');
+  };
+  const oldSaveSelected=saveSelectedSubjects;
+  saveSelectedSubjects=function(list){
+    configuredSubjects=normalizeSubjectList(list); if(!configuredSubjects.length)configuredSubjects=['bio'];
+    saveConfiguredSubjects(); localStorage.setItem(SUBJECT_SELECTION_KEY,JSON.stringify(configuredSubjects));
+  };
+  // Replace the original confirmation click handler by assigning the element's onclick.
+  const subjectConfirm=document.getElementById('subjectSelectConfirmBtn');
+  if(subjectConfirm){
+    subjectConfirm.onclick=()=>{
+      if(!pendingSubjectPicks.length)return;
+      showConfirm(`Use ${pendingSubjectPicks.join(', ')} plus Gen for tasks and Past Papers?`,()=>{
+        saveSelectedSubjects(pendingSubjectPicks); papersActiveTab=configuredSubjects[0]||'gen';
+        document.getElementById('subjectSelectModal')?.classList.remove('active');
+        renderSubjectDropdowns(); renderPapersTabs();
+      },'CONFIRM SUBJECTS?','Yes, Use These');
+    };
+  }
+  // If the original first-run call already opened it, refresh the contents immediately.
+  if(document.getElementById('subjectSelectModal')?.classList.contains('active')) renderChosenSubjectPicker();
+
+  /* ---------- strict import syntax ---------- */
+  window.parseStudyHQImport=function(input){
+    const days=[]; let subject='gen';
+    String(input||'').split(/\r?\n|\s+-\s+/).flatMap(part=>part.split('-')).forEach(dayPart=>{
+      const tasks=[];
+      dayPart.split(',').map(x=>x.trim()).filter(Boolean).forEach(raw=>{
+        let item=raw;
+        // EXACT, CASE-SENSITIVE subject syntax: code#task. No spaces are allowed in the code.
+        const m=item.match(/^([a-z][a-z0-9_-]*)#\s*(.*)$/);
+        if(m){
+          const code=m[1];
+          if(window.getStudySubjects().includes(code)) { subject=code; item=m[2].trim(); }
+          else { item=raw; }
+        }
+        if(item) tasks.push({subject,text:item,category:subject});
+      });
+      if(tasks.length) days.push({tasks});
+    });
+    return days;
+  };
+  // Preserve the currently selected subject across commas and day separators.
+
+  /* ---------- import prompt ---------- */
+  const buildPrompt=()=>{
+    const subjects=window.getStudySubjects();
+    return `You are generating import-ready tasks for Hafsah's Study HQ. Follow these rules EXACTLY:\n\n1. SUBJECT CODES ARE CASE-SENSITIVE. Use only these exact lowercase codes: ${subjects.join(', ')}. Never change capitalization.\n2. A subject tag MUST be directly connected to # with NO spaces before the hashtag: bio#, chem#, compsci#, phys#, math#, etc. Never write "bio #" or "Bio#".\n3. After a valid subject# tag, that subject remains active for every following task until another valid subject# tag appears. This persists across commas AND new-day separators.\n4. Commas create another task on the SAME day.\n5. A hyphen creates a NEW day.\n6. Gen is always available and its exact tag is gen#.\n7. Only use a subject# tag when switching subjects; do not invent subject codes or capitalization.\n8. Return ONLY the import-ready task text. No explanation, bullets, markdown, code fences, or extra commentary.\n\nExamples:\nbio#cells, active recall, flashcards - chem#acids, titration - compsci#loops, debugging - phys#waves, optics\nmath#algebra, calculus - gen#admin, planning\n\nConfigured subjects for this app right now: ${subjects.join(', ')}.\n`;
+  };
+  window.copyStudyHQPrompt=async function(){
+    const text=buildPrompt();
+    try{await navigator.clipboard.writeText(text);showInfo('The full Study HQ subject/import prompt was copied to your clipboard.','Prompt copied');}
+    catch(e){
+      const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();showInfo('The full Study HQ subject/import prompt was copied.','Prompt copied');
+    }
+  };
+
+  /* ---------- settings: subject editor + copy prompt ---------- */
+  const settingsTip=document.querySelector('#settingsModal .settings-tip');
+  if(settingsTip){
+    const panel=document.createElement('div'); panel.className='settings-tools'; panel.id='studyHQSubjectTools';
+    panel.innerHTML=`<div class="settings-subject-editor"><b>📚 Task Subjects</b><small>Choose the subjects that appear when adding tasks. Gen is always available. Codes are lowercase, case-sensitive, and must contain no spaces.</small><div class="settings-subject-current" id="settingsSubjectCurrent"></div><div style="display:flex;gap:8px"><input id="settingsSubjectInput" class="add-task-input" placeholder="Add subject code e.g. compsci"><button class="add-task-btn" id="settingsSubjectAdd">+ Add</button></div><button class="settings-tool" id="copyPromptSettings">📋 <b>Copy AI Import Prompt</b><small>Copies the exact rules for every configured subject, including case sensitivity and # formatting.</small></button></div>`;
+    settingsTip.parentElement.appendChild(panel);
+    const renderSettingsSubjects=()=>{
+      const el=document.getElementById('settingsSubjectCurrent');if(!el)return;
+      el.innerHTML=window.getStudySubjects().map(k=>`<span class="settings-subject-chip">${k}${k==='gen'?' (always)':''}</span>`).join('');
+    };
+    renderSettingsSubjects();
+    document.getElementById('settingsSubjectAdd')?.addEventListener('click',()=>{
+      const inp=document.getElementById('settingsSubjectInput'); const k=(inp?.value||'').trim();
+      if(!validCode(k)||k==='gen'||k.includes(' ')){showInfo('Subject codes must be lowercase, case-sensitive, and contain no spaces. Example: compsci','Invalid subject');return;}
+      if(!configuredSubjects.includes(k))configuredSubjects.push(k);
+      SUBJECT_META[k]={tag:'tag-subject',label:k}; SUBJECT_PRESETS[k]={label:k,fullName:k,emoji:'📘',code:k.toUpperCase().slice(0,4)};
+      saveConfiguredSubjects(); if(!PAPER_SUBJECTS[k]){PAPER_SUBJECTS[k]=[];for(let u=1;u<=6;u++)PAPER_SUBJECTS[k].push({code:`${SUBJECT_PRESETS[k].code}${u}`,name:`${k} Unit ${u}`});}
+      inp.value='';renderSettingsSubjects();renderSubjectDropdowns();renderPapersTabs();
+    });
+    document.getElementById('copyPromptSettings')?.addEventListener('click',window.copyStudyHQPrompt);
+  }
+
+  /* ---------- Stack Days: copy prompt button ---------- */
+  const stackModal=document.getElementById('stackModal');
+  if(stackModal){
+    const actions=stackModal.querySelector('.modal-btn')?.parentElement;
+    if(actions && !document.getElementById('copyPromptStack')){
+      const b=document.createElement('button');b.id='copyPromptStack';b.className='modal-btn';b.textContent='📋 Copy AI Prompt';b.style.background='var(--border)';b.onclick=window.copyStudyHQPrompt;actions.appendChild(b);
+    }
+  }
+  // Add a copy button to the dynamically-created Settings import modal.
+  const originalImportHook=document.getElementById('importTasksBtn');
+  if(originalImportHook){ /* the existing import modal is created on click; decorate after creation below */ }
+  const decorateImportModal=()=>{
+    const m=document.getElementById('importModal'); if(!m)return;
+    if(!m.querySelector('#copyPromptImport')){
+      const actions=m.querySelector('.modal-btn')?.parentElement;
+      if(actions){const b=document.createElement('button');b.id='copyPromptImport';b.className='modal-btn';b.textContent='📋 Copy AI Prompt';b.style.background='var(--border)';b.onclick=window.copyStudyHQPrompt;actions.appendChild(b);}
+    }
+  };
+  const observer=new MutationObserver(decorateImportModal); observer.observe(document.body,{childList:true,subtree:true});
+
+  /* ---------- task dropdown + legacy migration ---------- */
+  Object.keys(tasksByDate).forEach(day=>{
+    (tasksByDate[day]||[]).forEach(t=>{
+      if(LEGACY_SUBJECT_MAP[t.subject]) t.subject=LEGACY_SUBJECT_MAP[t.subject];
+      if(t.subject==='CS')t.subject='compsci'; if(t.subject==='physics')t.subject='phys';
+      if(!t.subject || !subjectMetaFor(t.subject))t.subject='gen';
+    });
+  });
+  saveTasks(); rebuildDataset();
+  const originalRenderApp=renderApp;
+  renderApp=function(){ originalRenderApp(); renderSubjectDropdowns(); refreshCompletedDayVisuals(); updateTitleDisplay(); };
+
+  /* ---------- progressive XP: each level requires more than the previous ---------- */
+  window.xpRequiredForLevel=function(level){return Math.round(100*Math.pow(1.065,Math.max(0,level-1)));};
+  window.xpToReachLevel=function(level){let total=0;for(let l=1;l<level;l++)total+=xpRequiredForLevel(l);return total;};
+  computeXPBreakdown=function(){
+    const completedCount=Object.values(userProgress).filter(Boolean).length;
+    const taskXP=completedCount*TASK_XP;
+    const paperXP=Object.values(paperXPState).reduce((a,b)=>a+b,0);
+    const penalty=computeMissedPenalty(); const bonus=(typeof getEquippedXPBonus==='function'?getEquippedXPBonus():0);
+    const totalXP=Math.max(0,Math.floor((taskXP+paperXP)*(1+bonus)-penalty));
+    let level=1,spent=0;
+    while(level<MAX_LEVEL && totalXP>=spent+xpRequiredForLevel(level)){spent+=xpRequiredForLevel(level);level++;}
+    const req=xpRequiredForLevel(level); const max=level>=MAX_LEVEL;
+    const currentXP=max?req:Math.max(0,totalXP-spent);
+    const pct=max?100:Math.max(0,Math.min(100,Math.floor(currentXP/req*100)));
+    return {totalXP,currentLevel:level,currentLevelXP:pct,xpRawCurrent:currentXP,xpRequired:req,xpBonus:bonus,isMaxLevel:max};
+  };
+
+  /* ---------- streak: complete current day lights it; numerical streak updates next day ---------- */
+  if(!meta.completedDays)meta.completedDays={};
+  if(!meta.streakGraceUntil)meta.streakGraceUntil=null;
+  const STREAK_GRACE_HOURS=5;
+  function dayIsComplete(day){return !!(day && day.tasks.length && day.tasks.every(t=>!!userProgress[t.id]));}
+  function syncCompletedDay(dayId){
+    const day=dataset.find(d=>d.id===dayId); if(!day||!day.tasks.length)return false;
+    if(dayIsComplete(day)){meta.completedDays[dayId]=true;return true;}
+    delete meta.completedDays[dayId]; return false;
+  }
+  function getGraceDeadline(dayId){const d=parseDayId(dayId);if(!d)return 0;d.setHours(7,0,0,0);return d.getTime();}
+  function calculateStreakForToday(){
+    const today=logicalId(); const idx=indexForId(today); if(idx<0)return 0;
+    let streak=0;
+    // Current day is deliberately excluded from the numerical count.
+    for(let i=idx-1;i>=0;i--){const d=dataset[i];if(!d.tasks.length)continue;if(meta.completedDays[d.id])streak++;else break;}
+    return streak;
+  }
+  function enforceStreakGrace(){
+    const today=logicalId(); const idx=indexForId(today); if(idx<0)return;
+    const prev=idx>0?dataset[idx-1]:null;
+    if(prev && prev.tasks.length && !meta.completedDays[prev.id] && Date.now()>getGraceDeadline(prev.id)){
+      meta.streak=0; meta.streakGraceUntil=null;
+    } else {
+      meta.streak=calculateStreakForToday();
+      if(prev && prev.tasks.length && !meta.completedDays[prev.id])meta.streakGraceUntil=getGraceDeadline(prev.id);
+    }
+    saveMeta();
+  }
+  function refreshCompletedDayVisuals(){
+    dataset.forEach(d=>{
+      const card=document.getElementById(d.id); if(!card)return;
+      const complete=dayIsComplete(d);
+      card.classList.toggle('day-complete-lit',complete);
+      card.classList.toggle('day-incomplete-grey',!complete && d.tasks.length>0);
+      const header=card.querySelector('.day-header');
+      if(header){let badge=header.querySelector('.day-streak-light');if(complete&&!badge){badge=document.createElement('span');badge.className='day-streak-light';badge.textContent='🔥 WORK COMPLETE';header.appendChild(badge);}if(!complete&&badge)badge.remove();}
+    });
+  }
+  window.syncStudyDay=()=>{dataset.forEach(d=>syncCompletedDay(d.id));enforceStreakGrace();saveMeta();refreshCompletedDayVisuals();};
+  // Initial sync + document-level checkbox hook. The existing handler still runs first.
+  dataset.forEach(d=>syncCompletedDay(d.id)); enforceStreakGrace(); saveMeta();
+  document.addEventListener('change',e=>{if(e.target.matches('.task-checkbox,.mini-checkbox'))setTimeout(()=>{syncCompletedDay(logicalId());enforceStreakGrace();saveMeta();refreshCompletedDayVisuals();},0);});
+
+  /* Replace rollover behavior with grace-aware rollover. */
+  processRollover=function(){
+    const today=logicalId(); if(!meta.lastActiveDate){meta.lastActiveDate=today;saveMeta();return;} if(meta.lastActiveDate===today){enforceStreakGrace();return;}
+    const oldIdx=indexForId(meta.lastActiveDate), todayIdx=indexForId(today);
+    if(oldIdx<0||todayIdx<0){meta.lastActiveDate=today;saveMeta();return;}
+    for(let i=oldIdx;i<todayIdx;i++){
+      const d=dataset[i]; if(!d.tasks.length)continue;
+      syncCompletedDay(d.id);
+      if(!meta.completedDays[d.id]){
+        d.tasks.forEach(t=>{if(!userProgress[t.id]){meta.missed[t.id]=true;if(!meta.missedSince[t.id])meta.missedSince[t.id]=today;}});
+        if(!meta.pendingReview.includes(d.id))meta.pendingReview.push(d.id);
+      }
+    }
+    meta.lastActiveDate=today; enforceStreakGrace(); saveMeta();
+  };
+  processRollover();
+
+  /* ============================================================
+     PLAYER TITLES — redesigned collectible system
+     - Small curated catalog (NOT one-per-level)
+     - Direct level titles use Common/Rare/Epic/Secret only
+     - EXACTLY ONE Super Rare title (Lv 20)
+     - EXACTLY ONE Ultra Secret title: THE REAL HAFSAH (Lv 100)
+     - Every 5 levels -> Mystery Box (stored, opened later from Inventory)
+     - Mystery Boxes can drop random titles from a separate pool
+     - Accessories are completely untouched; Collection defaults to Accessories
+     ============================================================ */
+
+  /* ---------- storage keys ---------- */
+  const TITLE_KEY          = 'hafsah_player_titles_v2';
+  const EQUIPPED_TITLE_KEY = 'hafsah_equipped_title_v2';
+  const TITLE_BOX_KEY      = 'hafsah_title_boxes_v2';        // count of unopened title mystery boxes
+  const TITLE_MILESTONE_KEY= 'hafsah_title_milestones_v2';   // { '5':true, '10':true, ... } awarded set
+  const TITLE_FROM_BOX_KEY = 'hafsah_titles_from_box_v2';    // ids obtained from boxes (for source tracking)
+
+  let ownedTitles = []; try { ownedTitles = JSON.parse(localStorage.getItem(TITLE_KEY) || '[]'); } catch(e){ ownedTitles = []; }
+  let equippedTitle = localStorage.getItem(EQUIPPED_TITLE_KEY) || '';
+  let titleBoxes = 0; try { titleBoxes = parseInt(localStorage.getItem(TITLE_BOX_KEY) || '0', 10) || 0; } catch(e){ titleBoxes = 0; }
+  let titleMilestones = {}; try { titleMilestones = JSON.parse(localStorage.getItem(TITLE_MILESTONE_KEY) || '{}'); } catch(e){ titleMilestones = {}; }
+  let titlesFromBox = []; try { titlesFromBox = JSON.parse(localStorage.getItem(TITLE_FROM_BOX_KEY) || '[]'); } catch(e){ titlesFromBox = []; }
+
+  function saveTitles(){
+    localStorage.setItem(TITLE_KEY, JSON.stringify(ownedTitles));
+    localStorage.setItem(EQUIPPED_TITLE_KEY, equippedTitle);
+    localStorage.setItem(TITLE_BOX_KEY, String(titleBoxes));
+    localStorage.setItem(TITLE_MILESTONE_KEY, JSON.stringify(titleMilestones));
+    localStorage.setItem(TITLE_FROM_BOX_KEY, JSON.stringify(titlesFromBox));
+  }
+
+  /* ---------- rarity helpers (reuse game's RARITY_ORDER/labels where present) ---------- */
+  const TITLE_RARITY_ORDER = (typeof RARITY_ORDER !== 'undefined') ? RARITY_ORDER : ['common','rare','epic','legendary','super_rare','secret','ultra_secret'];
+  const TITLE_RARITY_LABELS = (typeof RARITY_LABELS !== 'undefined') ? RARITY_LABELS : { common:'Common', rare:'Rare', epic:'Epic', legendary:'Legendary', super_rare:'Super Rare', secret:'Secret', ultra_secret:'Ultra Secret' };
+  function rarityLabel(r){ return (TITLE_RARITY_LABELS[r] || String(r||'common').replace('_',' ')); }
+  function rarityShort(r){ return rarityLabel(r).toUpperCase(); }
+  function rarityGlyph(r){ return r==='ultra_secret' ? '★' : r==='secret' ? '✦' : (r==='legendary'||r==='super_rare') ? '✦' : '◆'; }
+  function rarityIdx(r){ return TITLE_RARITY_ORDER.indexOf(r); }
+  const EFFECT_LABELS = { none:'No special effect', color:'Colored name display', glow:'Glowing name effect', particles:'Sparkle particle effect', 'glow-particles':'Glow + sparkle effect', 'hidden-glow':'Subtle glowing aura', prismatic:'Prismatic shifting colors' };
+  function effectLabel(e){ return EFFECT_LABELS[e] || 'No special effect'; }
+  function titleLore(t){ return t.lore || ''; }
+
+  /* ---------- THE TITLE CATALOG ----------
+     Direct level-reward titles are deliberately few and use only
+     Common / Rare / Epic / Secret — except the single Super Rare at Lv 20
+     and the single Ultra Secret (THE REAL HAFSAH) at Lv 100.
+     Box titles live in TITLE_BOX_POOL and are only obtained via Mystery Boxes. */
+  const TITLE_CATALOG = [
+    // ---- direct level rewards (sparse, meaningful milestones) ----
+    { id:'title-first-step',  name:'First Step',        rarity:'common',  level:1,   source:'level', effect:'none',        lore:'A modest badge for showing up and putting in the work. Every garden starts with one.' },
+    { id:'title-study-sprout',name:'Study Sprout',      rarity:'common',  level:3,   source:'level', effect:'color',      lore:'Given to those who take the first steps seriously. The roots are forming.' },
+    { id:'title-recall-rook', name:'Recall Rookie',     rarity:'rare',    level:8,   source:'level', effect:'glow',       lore:'A mark of consistency — earned by those who keep coming back to the page.' },
+    { id:'title-focus-finder',name:'Focus Finder',      rarity:'rare',    level:12,  source:'level', effect:'color',      lore:'For scholars who push past the easy plateau and learn to sit with the hard parts.' },
+    { id:'title-memory-builder',name:'Memory Builder',  rarity:'epic',    level:15,  source:'level', effect:'particles',  lore:'Reserved for those who turned revision into a daily ritual.' },
+    // Lv 20 — the ONE Super Rare direct title
+    { id:'title-garden-sovereign', name:'Garden Sovereign', rarity:'super_rare', level:20, source:'level', effect:'glow-particles', lore:'Vanishingly rare — most players never see this rank. A sovereign of the garden, crowned at the first great milestone.' },
+    { id:'title-exam-smith',  name:'Exam Smith',        rarity:'epic',    level:30,  source:'level', effect:'glow',       lore:'Forged in the heat of past papers. Given only to the seriously committed.' },
+    // Lv 40 milestone — Secret direct title
+    { id:'title-revision-royalty', name:'Revision Royalty', rarity:'secret', level:40, source:'level', effect:'hidden-glow', lore:'A hidden rank, spoken of only in whispers among those who reached the second great milestone.' },
+    // Lv 60 milestone — Secret direct title
+    { id:'title-syllabus-sovereign', name:'Syllabus Sovereign', rarity:'secret', level:60, source:'level', effect:'hidden-glow', lore:'Uncovered by the relentless. The third great milestone belongs to the few who refused to stop.' },
+    // Lv 80 milestone — Secret direct title
+    { id:'title-knowledge-king', name:'Knowledge King', rarity:'secret', level:80, source:'level', effect:'hidden-glow', lore:'A regnal secret for the fourth milestone. The garden remembers every hour you gave it.' },
+    // Lv 100 — the ONE Ultra Secret ultimate title
+    { id:'title-real-hafsah', name:'THE REAL HAFSAH', rarity:'ultra_secret', level:100, source:'special', effect:'prismatic', lore:'Not a title. A signature. The one who built this world, hidden in plain sight at the very end of the journey. There is only one.' },
+
+    // ---- mystery-box titles (obtained only by opening title boxes) ----
+    { id:'box-flashcard-friend', name:'Flashcard Friend',  rarity:'common',  source:'box', effect:'color',     lore:'Pulled from a Mystery Box. A friendly companion for the daily flip-through.' },
+    { id:'box-chapter-chaser',   name:'Chapter Chaser',    rarity:'common',  source:'box', effect:'none',      lore:'Pulled from a Mystery Box. Always one chapter ahead.' },
+    { id:'box-note-taker',       name:'Note Taker',        rarity:'common',  source:'box', effect:'color',     lore:'Pulled from a Mystery Box. The margins are full, and so is the mind.' },
+    { id:'box-quiz-crusher',     name:'Quiz Crusher',      rarity:'rare',    source:'box', effect:'glow',      lore:'Pulled from a Mystery Box. Quizzes flinch when you walk in.' },
+    { id:'box-concept-crafter',  name:'Concept Crafter',   rarity:'rare',    source:'box', effect:'color',     lore:'Pulled from a Mystery Box. You build understanding from raw parts.' },
+    { id:'box-focus-flame',      name:'Focus Flame',       rarity:'rare',    source:'box', effect:'glow',      lore:'Pulled from a Mystery Box. A steady flame that never gutters.' },
+    { id:'box-study-knight',     name:'Study Knight',      rarity:'epic',    source:'box', effect:'particles', lore:'Pulled from a Mystery Box. Armored in discipline, sworn to the syllabus.' },
+    { id:'box-memory-mage',      name:'Memory Mage',       rarity:'epic',    source:'box', effect:'glow',      lore:'Pulled from a Mystery Box. Memory bends to your will like a trained vine.' },
+    { id:'box-deep-diver',       name:'Deep Diver',        rarity:'epic',    source:'box', effect:'particles', lore:'Pulled from a Mystery Box. You go where the surface learners cannot.' },
+    { id:'box-study-oracle',     name:'Study Oracle',      rarity:'legendary',source:'box', effect:'glow-particles', lore:'Pulled from a Mystery Box. A legendary seer of the exam to come.' },
+    { id:'box-revision-titan',   name:'Revision Titan',   rarity:'legendary',source:'box', effect:'glow-particles', lore:'Pulled from a Mystery Box. Legendary weight behind every review.' },
+  ];
+  const TITLE_BY_ID = Object.fromEntries(TITLE_CATALOG.map(t => [t.id, t]));
+
+  // Titles that can be dropped by a title Mystery Box (everything except the
+  // Super Rare level title and the Ultra Secret — those are NEVER in boxes).
+  const TITLE_BOX_POOL = TITLE_CATALOG.filter(t =>
+    t.source === 'box' && t.rarity !== 'super_rare' && t.rarity !== 'ultra_secret'
+  );
+
+  // Rarity weights for box title drops. Kept meaningful: commons common,
+  // legendaries rare. Super Rare / Ultra Secret deliberately absent.
+  const TITLE_BOX_RARITY_WEIGHTS = { common: 50, rare: 28, epic: 14, legendary: 5, super_rare: 0, secret: 0, ultra_secret: 0 };
+
+  function rollTitleRarity(){
+    const eligible = TITLE_RARITY_ORDER.filter(r => (TITLE_BOX_RARITY_WEIGHTS[r]||0) > 0);
+    const total = eligible.reduce((s,r)=>s + TITLE_BOX_RARITY_WEIGHTS[r], 0);
+    const roll = Math.random() * total; let cum = 0;
+    for (const r of eligible){ cum += TITLE_BOX_RARITY_WEIGHTS[r]; if (roll <= cum) return r; }
+    return eligible[eligible.length-1];
+  }
+  function pickRandomTitle(){
+    const r = rollTitleRarity();
+    const pool = TITLE_BOX_POOL.filter(t => t.rarity === r);
+    if (!pool.length) return TITLE_BOX_POOL[0];
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  /* ---------- sorting / ordering ---------- */
+  // Direct level titles first (by level), then box titles (by rarity desc, then name).
+  function titleSortKey(t){
+    if (t.source === 'level' || t.source === 'special') return [0, t.level];
+    return [1, -rarityIdx(t.rarity), t.name];
+  }
+  function sortedTitles(){ return [...TITLE_CATALOG].sort((a,b)=>{
+    const ka = titleSortKey(a), kb = titleSortKey(b);
+    if (ka[0] !== kb[0]) return ka[0]-kb[0];
+    if (ka[0] === 0) return ka[1]-kb[1];
+    if (ka[1] !== kb[1]) return ka[1]-kb[1];
+    return (ka[2]||'').localeCompare(kb[2]||'');
+  }); }
+
+  /* ---------- source label ---------- */
+  function sourceLabel(t){
+    if (t.source === 'level')  return `Level ${t.level} Reward`;
+    if (t.source === 'special')return `Level ${t.level} Ultimate`;
+    if (t.source === 'box')    return 'Mystery Box';
+    return 'Special / Secret';
+  }
+  function sourceShort(t){
+    if (t.source === 'level')  return `Lv. ${t.level}`;
+    if (t.source === 'special')return `Lv. ${t.level}`;
+    if (t.source === 'box')    return '🎁 Box';
+    return '✦ Secret';
+  }
+
+  /* ---------- milestone model ----------
+     Every 5 levels = Mystery Box. Lv 20/40/60/80/100 also carry a direct title.
+     Lv 20 = the single Super Rare; Lv 100 = the single Ultra Secret. */
+  const BOX_EVERY = 5;
+  const TITLE_MILESTONE_LEVELS = [1,3,8,12,15,20,30,40,60,80,100]; // direct title award levels
+  function isBoxMilestone(lvl){ return lvl > 0 && lvl % BOX_EVERY === 0; }
+  function directTitleForLevel(lvl){ return TITLE_CATALOG.find(t => (t.source==='level'||t.source==='special') && t.level===lvl); }
+  function nextMilestoneInfo(currentLevel){
+    // next level (> currentLevel) that grants an UNCLAIMED reward: either an
+    // unclaimed Mystery Box, an unowned direct title, or both. Already-collected
+    // milestones (owned titles / received boxes) are skipped entirely.
+    for (let l = currentLevel + 1; l <= MAX_LEVEL; l++){
+      const isBox = isBoxMilestone(l);
+      const t = directTitleForLevel(l);
+      if (!isBox && !t) continue;                 // nothing at this level
+      const boxUnclaimed = isBox && !titleMilestones[String(l)];
+      const titleUnowned = t && !ownedTitles.includes(t.id);
+      if (!boxUnclaimed && !titleUnowned) continue; // everything here already collected
+      return { level: l, box: boxUnclaimed, title: titleUnowned ? t : null };
+    }
+    return null;
+  }
+
+  /* ---------- awarding ---------- */
+  function awardDirectTitle(t){
+    if (!t) return false;
+    if (ownedTitles.includes(t.id)) return false;
+    ownedTitles.push(t.id);
+    saveTitles();
+    return true;
+  }
+  function awardMilestoneBox(){ titleBoxes++; saveTitles(); }
+
+  // Process all milestones up to currentLevel. Idempotent: each milestone level
+  // is recorded in titleMilestones so re-running never double-awards.
+  function processTitleMilestones(currentLevel){
+    const events = []; // {type:'box'|'title', title?, level}
+    for (let l = 1; l <= currentLevel; l++){
+      if (titleMilestones[String(l)]) continue;
+      const isBox = isBoxMilestone(l);
+      const t = directTitleForLevel(l);
+      if (!isBox && !t) continue; // not a milestone level at all
+      titleMilestones[String(l)] = true;
+      if (isBox){ awardMilestoneBox(); events.push({ type:'box', level:l }); }
+      if (t){ const fresh = awardDirectTitle(t); if (fresh) events.push({ type:'title', title:t, level:l }); }
+    }
+    saveTitles();
+    return events;
+  }
+
+  /* ---------- notifications (reuse showInfo) ---------- */
+  function notifyMilestoneBox(level){
+    showInfo(`Level ${level} reward added to your Inventory. Open it whenever you're ready — it may contain a Player Title!`, '🎁 MYSTERY BOX RECEIVED');
+  }
+  function notifyDirectTitle(t){
+    showInfo(`${t.name} — ${rarityLabel(t.rarity)}\nAdded to your Player Titles.`, '🎖️ NEW TITLE UNLOCKED');
+  }
+  function notifyBoxTitle(t, dupCoins){
+    const dup = dupCoins > 0 ? `\nYou already had this one — ${dupCoins} 🌸 Petal Coins instead.` : '\nAdded to your Player Titles.';
+    showInfo(`${t.name} — ${rarityLabel(t.rarity)}${dup}`, '🎁 NEW TITLE UNLOCKED');
+  }
+
+  /* ---------- hook into level-ups ----------
+     showLevelUpModal is called right after a level crossing is detected. We wrap
+     it so that, on the FIRST call after a crossing, we process every newly-reached
+     milestone level and fire the appropriate notifications. We track the last
+     processed level so a single multi-level jump still awards every box in between. */
+  let lastProcessedLevel = -1;
+  try { lastProcessedLevel = parseInt(localStorage.getItem('hafsah_title_lastlevel_v2') || '-1', 10); }
+  catch(e){ lastProcessedLevel = -1; }
+  function saveLastProcessedLevel(){ localStorage.setItem('hafsah_title_lastlevel_v2', String(lastProcessedLevel)); }
+
+  // Make sure stored state matches current level on load (catches offline progress).
+  (function syncOnLoad(){
+    const lvl = (typeof computeXPBreakdown === 'function') ? computeXPBreakdown().currentLevel : 1;
+    processTitleMilestones(lvl);
+    lastProcessedLevel = lvl; saveLastProcessedLevel();
+  })();
+
+  if (typeof showLevelUpModal === 'function'){
+    const _origShowLevelUpModal = showLevelUpModal;
+    showLevelUpModal = function(building, coinsEarned){
+      const { currentLevel } = computeXPBreakdown();
+      // Award any milestones between lastProcessedLevel+1 and currentLevel (inclusive).
+      if (currentLevel > lastProcessedLevel){
+        const events = processTitleMilestones(currentLevel);
+        lastProcessedLevel = currentLevel; saveLastProcessedLevel();
+        // Fire notifications after the level-up modal is dismissed would be ideal,
+        // but showInfo stacks acceptably; we delay slightly so the level modal reads first.
+        setTimeout(() => {
+          events.forEach(ev => {
+            if (ev.type === 'box') notifyMilestoneBox(ev.level);
+            else if (ev.type === 'title') notifyDirectTitle(ev.title);
+          });
+        }, 650);
+      }
+      return _origShowLevelUpModal(building, coinsEarned);
+    };
+  }
+
+  /* ---------- equipped title display (next to level badge) ---------- */
+  function equipTitleById(id){
+    if (!ownedTitles.includes(id)) return;
+    equippedTitle = id; saveTitles(); updateTitleDisplay();
+  }
+  function unequipTitle(){ equippedTitle = ''; saveTitles(); updateTitleDisplay(); }
+  function updateTitleDisplay(){
+    let el = document.getElementById('playerTitleDisplay');
+    const badge = document.getElementById('levelBadge');
+    if (!badge) return;
+    if (!el){ el = document.createElement('span'); el.id = 'playerTitleDisplay'; badge.parentElement.appendChild(el); }
+    const t = equippedTitle ? TITLE_BY_ID[equippedTitle] : null;
+    el.innerHTML = t ? `<span class="player-title rarity-${t.rarity} title-effect-${t.effect}">${t.name}</span>` : '';
+  }
+  window.updateTitleDisplay = updateTitleDisplay;
+
+  /* ---------- COLLECTION: Accessories | Player Titles (Accessories default) ---------- */
+  let collectionView = 'accessories'; // ALWAYS defaults to accessories
+  let titleFilter = 'all';          // all | owned | locked
+  let titleRarityFilter = 'all';    // all | common | rare | epic | legendary | super_rare | secret | ultra_secret
+
+  function collectionTabsHtml(){
+    return `<div class="collection-view-tabs">
+      <button class="inv-filter-chip ${collectionView==='accessories'?'active':''}" data-collection-view="accessories">🎒 Accessories</button>
+      <button class="inv-filter-chip ${collectionView==='titles'?'active':''}" data-collection-view="titles">🎖️ Player Titles</button>
+    </div>`;
+  }
+  function bindCollectionTabs(scope){
+    (scope||document).querySelectorAll('[data-collection-view]').forEach(btn=>{
+      btn.onclick = () => { collectionView = btn.dataset.collectionView; renderShop(); };
+    });
+  }
+
+  /* ---------- title detail modal (lives outside #shopBody, survives re-renders) ---------- */
+  function ensureTitleModal(){
+    if (document.getElementById('titleDetailModal')) return;
+    const div = document.createElement('div');
+    div.id = 'titleDetailModal'; div.className = 'modal-overlay';
+    div.innerHTML = `<div class="modal-card title-modal-card">
+        <div class="title-modal-status" id="titleModalStatus"></div>
+        <div class="title-modal-rarity" id="titleModalRarity"></div>
+        <div class="title-modal-name" id="titleModalName"></div>
+        <div class="title-modal-row" id="titleModalUnlock"></div>
+        <div class="title-modal-row" id="titleModalEffect"></div>
+        <div class="title-modal-lore" id="titleModalLore"></div>
+        <div class="title-modal-actions" id="titleModalActions"></div>
+        <button class="modal-btn" id="titleModalCloseBtn" style="width:100%;background:var(--border);margin-top:8px;">Close</button>
+      </div>`;
+    document.body.appendChild(div);
+    div.addEventListener('click', e=>{ if (e.target===div) closeTitleModal(); });
+    document.getElementById('titleModalCloseBtn').addEventListener('click', closeTitleModal);
+  }
+  function closeTitleModal(){ document.getElementById('titleDetailModal')?.classList.remove('active'); }
+  function openTitleModal(id){
+    const t = TITLE_BY_ID[id]; if (!t) return;
+    ensureTitleModal();
+    const owned = ownedTitles.includes(id);
+    const equipped = id === equippedTitle;
+    const rarity = t.rarity || 'common';
+    const secret = (rarity === 'secret' || rarity === 'ultra_secret');
+    const statusEl  = document.getElementById('titleModalStatus');
+    const rarityEl  = document.getElementById('titleModalRarity');
+    const nameEl    = document.getElementById('titleModalName');
+    const unlockEl  = document.getElementById('titleModalUnlock');
+    const effectEl  = document.getElementById('titleModalEffect');
+    const loreEl    = document.getElementById('titleModalLore');
+    const actionsEl = document.getElementById('titleModalActions');
+
+    if (owned){
+      statusEl.textContent = equipped ? 'EQUIPPED' : 'OWNED';
+      statusEl.className = 'title-modal-status ' + (equipped ? 'equipped' : 'owned');
+      rarityEl.textContent = `${rarityGlyph(rarity)} ${rarityShort(rarity)}`;
+      rarityEl.className = 'title-modal-rarity rarity-' + rarity;
+      nameEl.textContent = t.name;
+      nameEl.className = 'title-modal-name' + (rarity === 'ultra_secret' ? ' title-ultra-text' : '');
+      unlockEl.innerHTML = (t.source === 'box')
+        ? `Obtained from <b>Mystery Box</b>`
+        : (t.source === 'special')
+          ? `Ultimate reward — <b>Level ${t.level}</b>`
+          : `Unlocked at <b>Level ${t.level}</b>`;
+      effectEl.innerHTML = `Effect: <b>${effectLabel(t.effect)}</b>`;
+      loreEl.textContent = titleLore(t);
+      if (equipped){
+        actionsEl.innerHTML = `<button class="modal-btn" id="titleModalUnequipBtn" style="width:100%;background:var(--border);">UNEQUIP</button>`;
+        document.getElementById('titleModalUnequipBtn').onclick = () => { unequipTitle(); renderShop(); openTitleModal(id); };
+      } else {
+        actionsEl.innerHTML = `<button class="modal-btn" id="titleModalEquipBtn" style="width:100%;">EQUIP</button>`;
+        document.getElementById('titleModalEquipBtn').onclick = () => { equipTitleById(id); renderShop(); openTitleModal(id); };
+      }
+    } else {
+      statusEl.textContent = 'LOCKED';
+      statusEl.className = 'title-modal-status locked';
+      // For secret/ultra titles we hide the name and exact rarity to preserve mystery.
+      if (secret){
+        rarityEl.textContent = '✦ ???';
+        rarityEl.className = 'title-modal-rarity';
+        nameEl.textContent = '?????';
+        nameEl.className = 'title-modal-name';
+        unlockEl.innerHTML = (t.source === 'special')
+          ? `Unlocks at <b>Level ${t.level}</b> — the ultimate milestone`
+          : `A secret reveals itself at <b>Level ${t.level}</b>`;
+        effectEl.innerHTML = '';
+        loreEl.textContent = 'Keep progressing — the truly hidden reveal themselves only to those who reach them.';
+      } else {
+        rarityEl.textContent = `${rarityGlyph(rarity)} ${rarityShort(rarity)}`;
+        rarityEl.className = 'title-modal-rarity rarity-' + rarity;
+        nameEl.textContent = '?????';
+        nameEl.className = 'title-modal-name';
+        unlockEl.innerHTML = (t.source === 'box')
+          ? `Obtainable from a <b>Mystery Box</b>`
+          : `Unlocks at <b>Level ${t.level}</b>`;
+        effectEl.innerHTML = '';
+        loreEl.textContent = `Keep progressing — this title reveals itself at Level ${t.level}.`;
+      }
+      actionsEl.innerHTML = '';
+    }
+    document.getElementById('titleDetailModal').classList.add('active');
+  }
+
+  /* ---------- milestone row (every 5 levels = box container) ---------- */
+  function milestoneRowHtml(lvl, reached){
+    const t = directTitleForLevel(lvl);
+    const boxBadge = `<span class="ms-box">🎁 Mystery Box</span>`;
+    const titleBadge = t ? `<span class="ms-title rarity-${t.rarity}">${reached ? (t.name) : '🔒 ' + sourceLabel(t)}</span>` : '';
+    return `<div class="title-milestone ${reached?'reached':''}">
+      <span class="ms-level">Lv. ${lvl}</span>
+      <span class="ms-badges">${boxBadge}${titleBadge}</span>
+      <span class="ms-state">${reached ? '✓ Claimed' : 'Locked'}</span>
+    </div>`;
+  }
+
+  /* ---------- render the Player Titles collection ---------- */
+  function renderTitlesCollection(){
+    const body = document.getElementById('shopBody'); if (!body) return;
+
+    const totalCatalog = TITLE_CATALOG.length;
+    const totalOwned = ownedTitles.length;
+    const pct = Math.round((totalOwned / totalCatalog) * 100);
+    const next = nextMilestoneInfo(computeXPBreakdown().currentLevel);
+
+    // build the combined list: milestone rows interleaved with title cards,
+    // but only the box-milestone levels (5,10,...,100) get a milestone row;
+    // direct-title-only levels (1,3,8,12,15,30) render as ordinary cards.
+    const sorted = sortedTitles();
+    // map level -> card for direct titles
+    const directByLevel = {};
+    sorted.forEach(t => { if (t.source==='level' || t.source==='special') directByLevel[t.level] = t; });
+    const boxTitles = sorted.filter(t => t.source === 'box');
+
+    // filters apply to title cards only (milestone rows always show, they're the path)
+    function passesFilter(t){
+      const owned = ownedTitles.includes(t.id);
+      if (titleFilter === 'owned' && !owned) return false;
+      if (titleFilter === 'locked' && owned) return false;
+      if (titleRarityFilter !== 'all' && t.rarity !== titleRarityFilter) return false;
+      return true;
+    }
+
+    // Build a single ordered list of "rows": milestones (every 5) in level order,
+    // then direct title cards at their level, then box titles grouped.
+    const items = [];
+    // gather all distinct "level anchors" we want to show in order: every 5-level milestone
+    // plus every direct-title level.
+    const anchors = new Set();
+    for (let l = 5; l <= MAX_LEVEL; l += 5) anchors.add(l);
+    TITLE_MILESTONE_LEVELS.forEach(l => anchors.add(l));
+    [...anchors].sort((a,b)=>a-b).forEach(lvl => {
+      const reached = computeXPBreakdown().currentLevel >= lvl;
+      const t = directByLevel[lvl];
+      const isBoxLvl = isBoxMilestone(lvl);
+      // milestone container (for box levels) — but NOT for plain title-only levels like 1,3,8...
+      if (isBoxLvl){
+        items.push({ kind:'milestone', lvl, reached });
+      }
+      if (t && passesFilter(t)){
+        items.push({ kind:'card', t });
+      }
+    });
+    // box titles under a small section header
+    if (titleFilter !== 'locked' || titleRarityFilter !== 'all'){
+      // still show box titles when they pass filters
+    }
+    const visibleBoxTitles = boxTitles.filter(passesFilter);
+    if (visibleBoxTitles.length){
+      items.push({ kind:'section', label:'🎁 From Mystery Boxes' });
+      visibleBoxTitles.forEach(t => items.push({ kind:'card', t }));
+    }
+
+    function cardHtml(t){
+      const owned = ownedTitles.includes(t.id);
+      const equipped = t.id === equippedTitle;
+      const rarity = t.rarity || 'common';
+      const secret = (rarity === 'secret' || rarity === 'ultra_secret');
+      if (!owned){
+        if (secret){
+          return `<button class="title-card2 locked secret-locked" data-title-id="${t.id}" aria-label="Locked secret title">
+            <span class="tc2-lock">🔒</span>
+            <span class="tc2-name">?????</span>
+            <span class="tc2-level">${t.source==='box'?'Mystery Box':'Unlocks Lv. '+t.level}</span>
+          </button>`;
+        }
+        return `<button class="title-card2 locked" data-title-id="${t.id}" aria-label="Locked title, level ${t.level}">
+          <span class="tc2-rarity rarity-${rarity}">${rarityGlyph(rarity)} ${rarityShort(rarity)}</span>
+          <span class="tc2-name">?????</span>
+          <span class="tc2-level">${t.source==='box'?'Mystery Box':'Unlocks Lv. '+t.level}</span>
+        </button>`;
+      }
+      return `<button class="title-card2 owned rarity-${rarity} ${equipped?'equipped':''}" data-title-id="${t.id}" aria-label="${t.name}">
+        <span class="tc2-rarity rarity-${rarity}">${rarityGlyph(rarity)} ${rarityShort(rarity)}</span>
+        <span class="tc2-name ${rarity==='ultra_secret'?'title-ultra-text':''}">${t.name}</span>
+        ${t.effect && t.effect!=='none' ? `<span class="tc2-effect">✨ ${effectLabel(t.effect)}</span>` : ''}
+        <span class="tc2-level">${sourceShort(t)}</span>
+        <span class="tc2-btn" data-quick-equip="${t.id}">${equipped?'EQUIPPED':'EQUIP'}</span>
+      </button>`;
+    }
+
+    const rowsHtml = items.map(it => {
+      if (it.kind === 'milestone') return milestoneRowHtml(it.lvl, it.reached);
+      if (it.kind === 'section')  return `<div class="title-section-label">${it.label}</div>`;
+      return cardHtml(it.t);
+    }).join('') || `<div class="shop-subtext" style="grid-column:1/-1;text-align:center;padding:18px 0;">No titles match this filter.</div>`;
+
+    const rarities = ['common','rare','epic','legendary','super_rare','secret','ultra_secret'];
+    const raritySelectHtml = `<select class="titles-rarity-select" id="titleRaritySelect">
+        <option value="all" ${titleRarityFilter==='all'?'selected':''}>All rarities</option>
+        ${rarities.map(r=>`<option value="${r}" ${titleRarityFilter===r?'selected':''}>${rarityLabel(r)}</option>`).join('')}
+      </select>`;
+
+    const nextLine = next
+      ? (next.title
+          ? `Next Title: <b>Level ${next.level} — ${next.title.name}</b>${next.box?' · 🎁 Box':''}`
+          : `Next Reward: <b>Level ${next.level} — 🎁 Mystery Box</b>`)
+      : `🏆 You've reached the end of the road!`;
+
+    body.innerHTML = `${collectionTabsHtml()}
+      <div class="titles-header">
+        <div class="shop-section-title">🎖️ PLAYER TITLES</div>
+        <div class="titles-progress-row">
+          <span class="titles-progress-count">${totalOwned} / ${totalCatalog} Collected</span>
+          <div class="titles-progress-track"><div class="titles-progress-fill" style="width:${pct}%"></div></div>
+          <span class="titles-progress-pct">${pct}%</span>
+        </div>
+        <div class="titles-next">${nextLine}</div>
+      </div>
+      <div class="titles-filters">
+        <button class="inv-filter-chip ${titleFilter==='all'?'active':''}" data-title-filter="all">ALL</button>
+        <button class="inv-filter-chip ${titleFilter==='owned'?'active':''}" data-title-filter="owned">OWNED</button>
+        <button class="inv-filter-chip ${titleFilter==='locked'?'active':''}" data-title-filter="locked">LOCKED</button>
+        ${raritySelectHtml}
+      </div>
+      <div class="title-grid2">${rowsHtml}</div>`;
+
+    bindCollectionTabs(body);
+    body.querySelectorAll('[data-title-filter]').forEach(btn => btn.onclick = () => { titleFilter = btn.dataset.titleFilter; renderTitlesCollection(); });
+    const rs = document.getElementById('titleRaritySelect');
+    if (rs) rs.onchange = () => { titleRarityFilter = rs.value; renderTitlesCollection(); };
+    body.querySelectorAll('[data-quick-equip]').forEach(btn => btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const id = btn.dataset.quickEquip;
+      if (id === equippedTitle) { openTitleModal(id); return; }
+      equipTitleById(id); renderTitlesCollection();
+    }));
+    body.querySelectorAll('[data-title-id]').forEach(card => card.addEventListener('click', () => openTitleModal(card.dataset.titleId)));
+  }
+
+  /* ---------- INVENTORY: add a TITLES sub-tab ----------
+     The existing Inventory (the `else` branch of renderShop) lists owned
+     accessories with category chips + sort. We wrap renderShop so that when
+     shopActiveTab === 'inventory', a small sub-tab row (ITEMS | ACCESSORIES |
+     TITLES) is injected at the top. ITEMS and ACCESSORIES reproduce the exact
+     existing experience; TITLES shows collected titles + unopened title boxes.
+     Default sub-tab is ITEMS so existing behavior is unchanged on open. */
+  let inventorySubTab = 'items'; // items | accessories | titles
+  let titleInvFilter = 'all';    // all | owned | locked (within titles inventory)
+
+  function inventorySubTabsHtml(){
+    return `<div class="inv-subtabs">
+      <button class="inv-filter-chip ${inventorySubTab==='items'?'active':''}" data-inv-subtab="items">📦 Items</button>
+      <button class="inv-filter-chip ${inventorySubTab==='accessories'?'active':''}" data-inv-subtab="accessories">🎒 Accessories</button>
+      <button class="inv-filter-chip ${inventorySubTab==='titles'?'active':''}" data-inv-subtab="titles">🎖️ Titles</button>
+    </div>`;
+  }
+
+  function renderTitlesInventory(){
+    const body = document.getElementById('shopBody'); if (!body) return;
+    const owned = sortedTitles().filter(t => ownedTitles.includes(t.id));
+    const equippedId = equippedTitle;
+    const filterFn = t => {
+      if (titleInvFilter === 'owned') return true; // all shown here are owned
+      return true;
+    };
+    const shown = owned.filter(filterFn);
+    const cards = shown.map(t => {
+      const equipped = t.id === equippedId;
+      const rarity = t.rarity;
+      return `<button class="title-card2 owned rarity-${rarity} ${equipped?'equipped':''}" data-title-id="${t.id}" aria-label="${t.name}">
+        <span class="tc2-rarity rarity-${rarity}">${rarityGlyph(rarity)} ${rarityShort(rarity)}</span>
+        <span class="tc2-name ${rarity==='ultra_secret'?'title-ultra-text':''}">${t.name}</span>
+        ${t.effect && t.effect!=='none' ? `<span class="tc2-effect">✨ ${effectLabel(t.effect)}</span>` : ''}
+        <span class="tc2-level">${sourceShort(t)}</span>
+        <span class="tc2-btn" data-quick-equip="${t.id}">${equipped?'EQUIPPED':'EQUIP'}</span>
+      </button>`;
+    }).join('') || `<div class="shop-subtext" style="grid-column:1/-1;text-align:center;padding:18px 0;">No titles yet — open Mystery Boxes and level up to collect them!</div>`;
+
+    const boxCount = titleBoxes;
+    const boxBlock = `<div class="title-inv-boxes">
+      <div class="title-inv-boxes-head">
+        <span class="shop-section-title" style="margin:0;">🎁 Title Mystery Boxes</span>
+        <span class="title-box-count">×${boxCount}</span>
+      </div>
+      <div class="title-inv-box-card ${boxCount>0?'has-boxes':'empty'}">
+        <div class="tib-emoji">🎁</div>
+        <div class="tib-body">
+          <div class="tib-title">Mystery Box</div>
+          <div class="tib-desc">${boxCount>0 ? 'Open for a chance at a random Player Title.' : 'Earn one every 5 levels — they land here.'}</div>
+        </div>
+        ${boxCount>0 ? `<button class="tib-open-btn" id="openTitleBoxBtn">OPEN</button>` : `<span class="tib-empty-tag">None yet</span>`}
+      </div>
+    </div>`;
+
+    body.innerHTML = `${inventorySubTabsHtml()}
+      <div class="shop-section-title centered">🎖️ Player Titles</div>
+      ${boxBlock}
+      <div class="titles-filters">
+        <button class="inv-filter-chip ${titleInvFilter==='all'?'active':''}" data-titleinv-filter="all">ALL</button>
+      </div>
+      <div class="title-grid2">${cards}</div>`;
+
+    body.querySelectorAll('[data-inv-subtab]').forEach(btn => btn.onclick = () => { inventorySubTab = btn.dataset.invSubtab; renderShop(); });
+    const openBtn = document.getElementById('openTitleBoxBtn');
+    if (openBtn) openBtn.onclick = openTitleBoxFromInventory;
+    body.querySelectorAll('[data-quick-equip]').forEach(btn => btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const id = btn.dataset.quickEquip;
+      if (id === equippedTitle) { openTitleModal(id); return; }
+      equipTitleById(id); renderShop();
+    }));
+    body.querySelectorAll('[data-title-id]').forEach(card => card.addEventListener('click', () => openTitleModal(card.dataset.titleId)));
+  }
+
+  /* ---------- opening a title Mystery Box (reuses the case reel + reveal) ---------- */
+  function openTitleBoxFromInventory(){
+    if (titleBoxes <= 0) { showInfo('You have no Title Mystery Boxes right now. Reach the next 5-level milestone to earn one!', 'No boxes yet'); return; }
+    if (window.__studyHQTitleBoxBusy) return;
+    window.__studyHQTitleBoxBusy = true;
+    titleBoxes--; saveTitles();
+
+    const t = pickRandomTitle();
+    const already = ownedTitles.includes(t.id);
+    let dupCoins = 0;
+    if (!already){
+      ownedTitles.push(t.id);
+      if (t.source === 'box' && !titlesFromBox.includes(t.id)) titlesFromBox.push(t.id);
+      saveTitles();
+    } else {
+      // Duplicate -> small Petal Coin consolation (existing duplicate philosophy: never silently destroy).
+      dupCoins = 8 + rarityIdx(t.rarity) * 6;
+      if (typeof coins !== 'undefined' && typeof saveCoins === 'function'){ coins += dupCoins; saveCoins(); if (typeof updateCoinDisplays === 'function') updateCoinDisplays(); }
+    }
+
+    // Reuse the existing case reel UI with a title "item" adapter so the spin + reveal feel native.
+    const fakeItem = { id: t.id, name: t.name, rarity: t.rarity, emoji: titleEmojiFor(t) };
+    const fakeBox  = { label: 'Title Mystery Box', gender: 'mixed' };
+    try { playCaseOpen(fakeItem, fakeBox); } catch(e){ /* fall back to reward modal */ }
+
+    // After the reel settles, show the title reward modal + notification.
+    // playCaseOpen's transitionend fires the reveal; we additionally surface a title-specific modal.
+    setTimeout(() => {
+      showTitleRewardModal(t, already, dupCoins);
+      notifyBoxTitle(t, dupCoins);
+      if (typeof confetti === 'function' && (t.rarity === 'epic' || t.rarity === 'legendary')){
+        try { confetti({ particleCount: t.rarity==='legendary'?140:80, spread:100, origin:{y:0.5} }); } catch(e){}
+      }
+      window.__studyHQTitleBoxBusy = false;
+      // re-render inventory if open
+      if (typeof shopActiveTab !== 'undefined' && shopActiveTab === 'inventory' && inventorySubTab === 'titles') renderShop();
+    }, 8400 + (t.rarity === 'legendary' ? 600 : 0));
+  }
+
+  function titleEmojiFor(t){
+    if (t.rarity === 'ultra_secret') return '👑';
+    if (t.rarity === 'secret') return '✦';
+    if (t.rarity === 'super_rare') return '💫';
+    if (t.rarity === 'legendary') return '🏆';
+    if (t.rarity === 'epic') return '💠';
+    if (t.rarity === 'rare') return '🔷';
+    return '🔹';
+  }
+
+  /* ---------- title reward modal (separate from accessory reward modal) ---------- */
+  function ensureTitleRewardModal(){
+    if (document.getElementById('titleRewardModal')) return;
+    const div = document.createElement('div');
+    div.id = 'titleRewardModal'; div.className = 'modal-overlay';
+    div.innerHTML = `<div class="modal-card title-reward-card">
+        <div class="title-reward-kicker" id="titleRewardKicker">NEW TITLE UNLOCKED</div>
+        <div class="title-reward-emoji" id="titleRewardEmoji">🎁</div>
+        <div class="title-reward-rarity" id="titleRewardRarity"></div>
+        <h2 class="title-reward-name" id="titleRewardName"></h2>
+        <p class="title-reward-sub" id="titleRewardSub"></p>
+        <button class="modal-btn" id="titleRewardCloseBtn" style="width:100%;">Nice!</button>
+      </div>`;
+    document.body.appendChild(div);
+    div.addEventListener('click', e=>{ if (e.target===div) div.classList.remove('active'); });
+    document.getElementById('titleRewardCloseBtn').addEventListener('click', () => div.classList.remove('active'));
+  }
+  function showTitleRewardModal(t, dup, dupCoins){
+    ensureTitleRewardModal();
+    const m = document.getElementById('titleRewardModal');
+    document.getElementById('titleRewardKicker').textContent = dup ? 'DUPLICATE TITLE' : 'NEW TITLE UNLOCKED';
+    document.getElementById('titleRewardEmoji').textContent = titleEmojiFor(t);
+    const rEl = document.getElementById('titleRewardRarity');
+    rEl.textContent = rarityShort(t.rarity);
+    rEl.className = 'title-reward-rarity rarity-' + t.rarity;
+    const nEl = document.getElementById('titleRewardName');
+    nEl.textContent = t.name;
+    nEl.className = 'title-reward-name' + (t.rarity === 'ultra_secret' ? ' title-ultra-text' : '');
+    document.getElementById('titleRewardSub').textContent = dup
+      ? `You already owned this title. ${dupCoins} 🌸 Petal Coins added instead.`
+      : 'Added to your Player Titles — not equipped. Equip it from your Titles collection.';
+    m.classList.add('active');
+  }
+
+  /* ---------- wrap renderShop: Collection tabs + Inventory sub-tabs ---------- */
+  const _origRenderShop = renderShop;
+  renderShop = function(){
+    // COLLECTION: default Accessories; inject tabs on top; route to titles view when selected.
+    if (typeof shopActiveTab === 'undefined'){ return _origRenderShop(); }
+    if (shopActiveTab === 'collection'){
+      if (collectionView === 'titles'){
+        renderTitlesCollection();
+        return;
+      }
+      // Accessories (default) — render the EXISTING collection, then prepend our tab row.
+      _origRenderShop();
+      const body = document.getElementById('shopBody'); if (!body) return;
+      body.insertAdjacentHTML('afterbegin', collectionTabsHtml());
+      bindCollectionTabs(body);
+      return;
+    }
+    if (shopActiveTab === 'inventory'){
+      if (inventorySubTab === 'titles'){
+        renderTitlesInventory();
+        return;
+      }
+      // ITEMS / ACCESSORIES — render the EXISTING inventory, then prepend sub-tabs.
+      _origRenderShop();
+      const body = document.getElementById('shopBody'); if (!body) return;
+      // only inject once (avoid duplicates if original already re-rendered)
+      if (!body.querySelector('.inv-subtabs')){
+        body.insertAdjacentHTML('afterbegin', inventorySubTabsHtml());
+        body.querySelectorAll('[data-inv-subtab]').forEach(btn => btn.onclick = () => { inventorySubTab = btn.dataset.invSubtab; renderShop(); });
+      }
+      return;
+    }
+    return _origRenderShop();
+  };
+
+  /* ---------- level road: show milestone markers (boxes + titles) ---------- */
+  if (typeof levelRoadDetailHTML === 'function'){
+    const _origLevelRoadDetail = levelRoadDetailHTML;
+    levelRoadDetailHTML = function(b, isCurrent, isLocked){
+      const base = _origLevelRoadDetail(b, isCurrent, isLocked);
+      const lvl = b.lvl;
+      const box = isBoxMilestone(lvl);
+      const t = directTitleForLevel(lvl);
+      if (!box && !t) return base;
+      const parts = [];
+      if (box) parts.push(`<span>🎁 Mystery Box${isLocked?' (locked)':' — sent to Inventory'}</span>`);
+      if (t){
+        const owned = ownedTitles.includes(t.id);
+        const secret = (t.rarity === 'secret' || t.rarity === 'ultra_secret');
+        const label = (isLocked && secret) ? `🔒 Secret title at Lv. ${lvl}` : (isLocked ? `🔒 ${t.name}` : `${t.name}`);
+        parts.push(`<span class="rarity-${t.rarity}">${rarityGlyph(t.rarity)} ${label} · ${rarityLabel(t.rarity)}</span>`);
+      }
+      return `${base}<div class="lroad-title-reward"><b>🎖️ Level ${lvl} Reward</b>${parts.join('')}<small>Every 5 levels grants a Mystery Box. Major milestones grant special titles.</small></div>`;
+    };
+    // mark box-milestone nodes on the map with a small gift badge
+    if (typeof renderLevelRoad === 'function'){
+      const _origRenderLevelRoad = renderLevelRoad;
+      renderLevelRoad = function(){
+        _origRenderLevelRoad();
+        try {
+          const track = document.getElementById('lroadTrack');
+          if (!track) return;
+          track.querySelectorAll('.lroad-node').forEach(n => {
+            const num = n.querySelector('.lroad-node-num');
+            if (!num) return;
+            const lvl = parseInt(num.textContent, 10);
+            if (isBoxMilestone(lvl) && !n.querySelector('.lroad-gift')){
+              const g = document.createElement('span');
+              g.className = 'lroad-gift'; g.textContent = '🎁';
+              n.appendChild(g);
+            }
+          });
+        } catch(e){}
+      };
+    }
+  }
+
+  /* ---------- styling ---------- */
+  const style = document.createElement('style'); style.textContent = `
+/* subject/streak/day visuals preserved from prior patch */
+.subject-select-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.subject-custom-row{grid-column:1/-1;display:flex;gap:8px;margin-top:4px}.subject-custom-row input{min-width:0}.settings-subject-editor{padding:12px;border:1px solid var(--border);border-radius:14px;background:var(--task-bg);display:grid;gap:8px}.settings-subject-editor small{color:var(--text-muted);line-height:1.4}.settings-subject-current{display:flex;gap:6px;flex-wrap:wrap}.settings-subject-chip{padding:5px 9px;border-radius:999px;background:var(--card-hover);border:1px solid var(--border);font-size:.72rem;font-weight:800}.day-complete-lit{border-color:var(--accent-emerald)!important;box-shadow:0 0 0 1px color-mix(in srgb,var(--accent-emerald) 25%,transparent),0 0 26px color-mix(in srgb,var(--accent-emerald) 18%,transparent),var(--card-shadow)!important}.day-complete-lit::after{content:'✓';position:absolute;right:18px;top:18px;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--accent-emerald);color:#fff;font-weight:900;box-shadow:0 0 16px color-mix(in srgb,var(--accent-emerald) 45%,transparent)}.day-incomplete-grey{filter:saturate(.72)}.day-streak-light{font-size:.68rem;font-weight:900;color:var(--accent-emerald);background:color-mix(in srgb,var(--accent-emerald) 12%,transparent);border:1px solid color-mix(in srgb,var(--accent-emerald) 28%,transparent);padding:4px 8px;border-radius:999px}
+
+/* equipped player title next to level badge */
+.player-title{display:inline-block;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.72rem;font-weight:900;letter-spacing:.2px;margin-left:7px;vertical-align:middle}
+.player-title.rarity-common{color:var(--text-muted)}
+.player-title.rarity-rare{color:#6fc3ff}
+.player-title.rarity-epic{color:#d5a8ff}
+.player-title.rarity-legendary{color:#ffd36e}
+.player-title.rarity-super_rare{color:#ff987a}
+.player-title.rarity-secret{color:#ff8eaa}
+.player-title.rarity-ultra_secret{color:#ffe58a}
+.title-effect-glow,.title-effect-hidden-glow{filter:drop-shadow(0 0 6px currentColor)}
+.title-effect-particles::after,.title-effect-glow-particles::after{content:'✦';font-size:.6em;margin-left:3px;animation:titleSpark 1.8s ease-in-out infinite}
+.title-effect-prismatic{background:linear-gradient(90deg,#ffe58a,#ff8eaa,#8fd8ff,#d5a8ff,#ffe58a);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:titlePrism 3s linear infinite}
+.title-effect-hidden-glow{animation:titleSecret 2.4s ease-in-out infinite}
+@keyframes titleSpark{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:1;transform:translateY(-2px)}}
+@keyframes titlePrism{to{background-position:-250% 0}}
+@keyframes titleSecret{50%{filter:drop-shadow(0 0 10px currentColor)}}
+
+/* collection view tabs + inventory sub tabs */
+.collection-view-tabs{display:flex;gap:8px;margin-bottom:14px}
+.inv-subtabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+
+/* titles header / progress / filters */
+.titles-header{margin-bottom:2px}
+.titles-progress-row{display:flex;align-items:center;gap:10px;margin:6px 0 4px}
+.titles-progress-count{font-size:.8rem;font-weight:900;white-space:nowrap}
+.titles-progress-track{flex:1;height:8px;border-radius:6px;background:var(--task-bg);overflow:hidden;border:1px solid var(--border)}
+.titles-progress-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent-purple),var(--accent-emerald));transition:width .4s ease}
+.titles-progress-pct{font-size:.68rem;color:var(--text-muted);font-weight:800;min-width:34px;text-align:right}
+.titles-next{font-size:.72rem;color:var(--text-muted);font-weight:700;margin:2px 0 10px}
+.titles-next b{color:var(--text-main)}
+.titles-filters{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 0 12px}
+.titles-rarity-select{font-size:.68rem;font-weight:800;padding:6px 8px;border-radius:8px;border:1px solid var(--border);background:var(--card-hover);color:var(--text-main)}
+
+/* milestone containers (every 5 levels = box) */
+.title-milestone{display:flex;align-items:center;gap:10px;grid-column:1/-1;padding:9px 12px;border:1px dashed var(--border);border-radius:12px;background:color-mix(in srgb,var(--accent-amber) 6%,var(--task-bg));margin:2px 0}
+.title-milestone.reached{border-style:solid;border-color:color-mix(in srgb,var(--accent-emerald) 45%,var(--border));background:color-mix(in srgb,var(--accent-emerald) 7%,var(--task-bg))}
+.title-milestone .ms-level{font-size:.74rem;font-weight:900;min-width:54px;color:var(--text-main)}
+.title-milestone .ms-badges{display:flex;gap:8px;flex-wrap:wrap;flex:1;align-items:center}
+.title-milestone .ms-box{font-size:.66rem;font-weight:900;padding:4px 9px;border-radius:8px;background:color-mix(in srgb,var(--accent-amber) 85%,transparent);color:#2a1a05}
+.title-milestone .ms-title{font-size:.66rem;font-weight:900;padding:4px 9px;border-radius:8px;background:var(--card-hover);border:1px solid var(--border)}
+.title-milestone .ms-state{font-size:.62rem;font-weight:800;color:var(--text-muted)}
+.title-milestone.reached .ms-state{color:var(--accent-emerald)}
+.title-section-label{grid-column:1/-1;font-size:.72rem;font-weight:900;color:var(--text-muted);margin:10px 0 2px;letter-spacing:.4px}
+
+/* compact title grid + cards */
+.title-grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.title-card2{position:relative;border-radius:14px;padding:12px 11px 10px;display:flex;flex-direction:column;gap:4px;cursor:pointer;border:1px solid var(--border);background:var(--surface-deep);color:var(--text-main);min-height:132px;transition:.16s;overflow:hidden;text-align:left;font-family:inherit}
+.title-card2:hover{transform:translateY(-2px);border-color:var(--accent-purple)}
+.title-card2 .tc2-rarity{font-size:.55rem;font-weight:900;letter-spacing:.5px;display:flex;align-items:center;gap:3px}
+.title-card2 .tc2-name{font-size:.82rem;font-weight:900;line-height:1.16;margin-top:1px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.title-card2 .tc2-level{font-size:.6rem;color:var(--text-muted);font-weight:800;margin-top:auto}
+.title-card2 .tc2-effect{font-size:.56rem;color:var(--accent-purple);font-weight:800}
+.title-card2 .tc2-btn{margin-top:6px;font-size:.6rem;font-weight:900;letter-spacing:.4px;padding:6px 8px;border-radius:8px;border:1px solid var(--border);background:var(--card-hover);color:var(--text-main);text-align:center}
+.title-card2.owned .tc2-btn{background:linear-gradient(135deg,var(--accent-purple),var(--accent-blue));color:#fff;border:none}
+.title-card2.equipped .tc2-btn{background:var(--accent-emerald);color:#0e2019}
+.title-card2.locked{background:var(--task-bg);opacity:.62;filter:grayscale(.35);cursor:default}
+.title-card2.locked:hover{transform:none;border-color:var(--border)}
+.title-card2.locked .tc2-name{color:var(--text-muted);letter-spacing:2px;font-size:.78rem}
+.title-card2.locked.secret-locked{opacity:.5}
+.title-card2.locked .tc2-lock{font-size:1.05rem}
+.title-card2.equipped{border-color:var(--accent-emerald);animation:titleEquippedPulse 2.4s ease-in-out infinite}
+.title-card2.equipped::before{content:'EQUIPPED';position:absolute;top:7px;right:7px;font-size:.48rem;font-weight:900;letter-spacing:.3px;padding:3px 6px;border-radius:6px;background:var(--accent-emerald);color:#0e2019;z-index:2}
+@keyframes titleEquippedPulse{0%,100%{box-shadow:0 0 0 1px color-mix(in srgb,var(--accent-emerald) 35%,transparent),0 0 14px color-mix(in srgb,var(--accent-emerald) 14%,transparent)}50%{box-shadow:0 0 0 1px color-mix(in srgb,var(--accent-emerald) 55%,transparent),0 0 24px color-mix(in srgb,var(--accent-emerald) 28%,transparent)}}
+
+/* rarity colors */
+.rarity-common{color:var(--text-muted)}
+.rarity-rare{color:#6fc3ff}
+.rarity-epic{color:#d5a8ff}
+.rarity-legendary{color:#ffd36e}
+.rarity-super_rare{color:#ff987a}
+.rarity-secret{color:#ff8eaa}
+.rarity-ultra_secret{color:#ffe58a}
+
+/* rarity glows on cards */
+.title-card2.rarity-legendary{box-shadow:0 0 12px color-mix(in srgb,#ffd36e 16%,transparent)}
+.title-card2.rarity-super_rare{box-shadow:0 0 12px color-mix(in srgb,#ff987a 16%,transparent)}
+.title-card2.rarity-secret{box-shadow:0 0 15px color-mix(in srgb,#ff8eaa 20%,transparent);border-color:color-mix(in srgb,#ff8eaa 38%,var(--border))}
+.title-card2.rarity-ultra_secret{border-color:transparent;background-image:linear-gradient(var(--surface-deep),var(--surface-deep)),linear-gradient(120deg,#ffe58a,#ff8eaa,#8fd8ff,#ffe58a);background-origin:border-box;background-clip:padding-box,border-box;box-shadow:0 0 24px rgba(255,215,110,.32);animation:titleUltraGlow 3s ease-in-out infinite}
+@keyframes titleUltraGlow{0%,100%{box-shadow:0 0 20px rgba(255,215,110,.28)}50%{box-shadow:0 0 32px rgba(255,215,110,.5)}}
+.title-card2.rarity-ultra_secret .tc2-name,.title-ultra-text{background:linear-gradient(90deg,#ffe58a,#ff8eaa,#8fd8ff,#ffe58a);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:titlePrism 3s linear infinite}
+
+/* title detail modal */
+.title-modal-card{max-width:340px;width:min(340px,92vw);text-align:center}
+.title-modal-rarity{font-size:.66rem;font-weight:900;letter-spacing:.6px;margin-bottom:2px}
+.title-modal-name{font-size:1.2rem;font-weight:900;margin:2px 0 8px;line-height:1.25}
+.title-modal-row{font-size:.76rem;color:var(--text-muted);margin:4px 0}
+.title-modal-row b{color:var(--text-main)}
+.title-modal-lore{font-style:italic;font-size:.78rem;color:var(--text-muted);margin:10px 0;line-height:1.42}
+.title-modal-status{display:inline-block;font-size:.62rem;font-weight:900;letter-spacing:.4px;padding:4px 9px;border-radius:999px;margin-bottom:10px}
+.title-modal-status.locked{background:var(--task-bg);color:var(--text-muted);border:1px solid var(--border)}
+.title-modal-status.owned{background:color-mix(in srgb,var(--accent-purple) 18%,transparent);color:var(--accent-purple)}
+.title-modal-status.equipped{background:var(--accent-emerald);color:#0e2019}
+.title-modal-actions{margin-top:4px}
+
+/* title reward modal (from box open) */
+.title-reward-card{max-width:360px;width:min(360px,92vw);text-align:center}
+.title-reward-kicker{font-size:.66rem;font-weight:900;letter-spacing:.6px;color:var(--accent-purple);margin-bottom:6px}
+.title-reward-emoji{font-size:2.6rem;line-height:1;margin-bottom:4px}
+.title-reward-rarity{font-size:.66rem;font-weight:900;letter-spacing:.6px;margin-bottom:2px}
+.title-reward-name{font-size:1.3rem;font-weight:900;margin:2px 0 8px;line-height:1.2}
+.title-reward-sub{font-size:.76rem;color:var(--text-muted);margin-bottom:12px;line-height:1.4}
+
+/* inventory titles: box card */
+.title-inv-boxes{margin-bottom:14px}
+.title-inv-boxes-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.title-box-count{font-size:.8rem;font-weight:900;color:var(--accent-amber)}
+.title-inv-box-card{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--border);border-radius:14px;background:var(--task-bg)}
+.title-inv-box-card.has-boxes{border-color:color-mix(in srgb,var(--accent-amber) 45%,var(--border));background:color-mix(in srgb,var(--accent-amber) 8%,var(--task-bg))}
+.title-inv-box-card .tib-emoji{font-size:2rem}
+.title-inv-box-card .tib-body{flex:1;min-width:0}
+.tib-title{font-size:.86rem;font-weight:900}
+.tib-desc{font-size:.66rem;color:var(--text-muted);margin-top:2px;line-height:1.35}
+.tib-open-btn{font-size:.7rem;font-weight:900;letter-spacing:.4px;padding:9px 14px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--accent-amber),#ff9d5c);color:#2a1a05;cursor:pointer}
+.tib-empty-tag{font-size:.64rem;font-weight:800;color:var(--text-muted)}
+
+/* level road gift marker */
+.lroad-gift{position:absolute;top:-10px;right:-8px;font-size:.8rem;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}
+.lroad-title-reward{margin-top:12px;padding:11px 13px;border:1px solid var(--border);border-radius:12px;background:var(--task-bg);display:grid;gap:4px}
+.lroad-title-reward b{font-size:.78rem}
+.lroad-title-reward span{font-size:.75rem;color:var(--accent-purple);font-weight:800}
+.lroad-title-reward small{font-size:.68rem;color:var(--text-muted)}
+
+/* responsive */
+@media(max-width:820px){
+  .title-grid2{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .player-title{max-width:120px;font-size:.64rem}
+  .subject-custom-row{flex-direction:column}
+  .title-milestone{flex-wrap:wrap}
+  .title-milestone .ms-level{min-width:0}
+}
+  `;
+  document.head.appendChild(style);
+
+  /* ---------- final refresh ---------- */
+  renderSubjectDropdowns();
+  renderPapersTabs();
+  if(typeof renderApp==='function')renderApp();
+  if(typeof renderMini==='function')renderMini();
+  if(typeof updateGamification==='function')updateGamification();
+  updateTitleDisplay();
+  refreshCompletedDayVisuals();
+  setInterval(()=>{processRollover();enforceStreakGrace();refreshCompletedDayVisuals();updateGamification();updateTitleDisplay();},60000);
+})();
+</script>
+
 </body>
+</html>
+
