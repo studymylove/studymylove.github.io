@@ -901,7 +901,7 @@
     }
     .search-input:focus { border-color: var(--accent-purple); box-shadow: 0 0 10px rgba(217, 165, 102, 0.2); }
 
-    .date-nav-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; padding-right: 4px; }
+    .date-nav-list { flex: 1; min-height: 110px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; padding-right: 4px; }
     .date-nav-item {
       padding: 10px 14px;
       border-radius: 10px;
@@ -1109,6 +1109,12 @@
       border-radius: 24px; padding: 36px; text-align: center;
       width: min(420px, 90vw); transform: scale(0.8); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       box-shadow: 0 0 30px rgba(217, 165, 102, 0.4);
+      /* Unconditional height guard (not just inside the narrow-width media query below) —
+         without this, a short/landscape viewport (e.g. a phone rotated sideways) lets tall
+         modal content (Settings, etc.) overflow above/below the screen with its own close
+         button pushed out of reach, since .modal-overlay centers with align-items:center. */
+      max-height: min(90dvh, calc(100vh - 24px));
+      overflow-y: auto;
     }
     .modal-overlay.active .modal-card { transform: scale(1); }
     .modal-icon { font-size: 4rem; margin-bottom: 12px; }
@@ -1705,6 +1711,13 @@
         transform: translateX(-100%);
         transition: transform .28s cubic-bezier(.2,.9,.3,1.1);
         box-shadow: 20px 0 40px rgba(0,0,0,.4);
+        /* Safety net: on short/landscape screens the fixed-size header content
+           (brand row, level card, search box) can add up to the full sidebar
+           height on its own, leaving the flexed day list at 0px with nothing
+           to scroll (date-nav-list's own min-height above stops it collapsing
+           to nothing, but the sidebar itself still needs to be able to scroll
+           so that floor is actually reachable). */
+        overflow-y: auto;
       }
       body.sidebar-open aside { transform: translateX(0); }
 
@@ -2157,7 +2170,7 @@
       { lvl: 97, name: 'Zenith Absolute', icon: '💫', desc: 'The highest point this journey has to offer — almost.' },
       { lvl: 98, name: 'Apex of Ascension', icon: '💫', desc: 'One level stands between you and the very top.' },
       { lvl: 99, name: 'The Final Ascent', icon: '💫', desc: 'Everything before this was leading here.' },
-      { lvl: 100, name: 'THE HAFSAH', icon: '👑', desc: 'The absolute pinnacle of Hafsah\'s Study HQ — the final stage. There is nothing beyond this.' }
+      { lvl: 100, name: 'MASTERMIND', icon: '👑', desc: 'The absolute pinnacle of Hafsah\'s Study HQ — the final stage. There is nothing beyond this.' }
     ];
     // Sanity-check once at load: 100 unique levels, no gaps, no duplicate lvl values.
     // (Left in deliberately cheap — runs once, not per-render.)
@@ -2985,7 +2998,7 @@
           const viewportWidth = reel.parentElement.clientWidth;
           const jitter = (Math.random() * 50) - 25; // lands slightly off-center within the winning cell, like a real case
           const targetOffset = (CASE_WINNER_INDEX * CASE_CELL_FULL_WIDTH) + (CASE_CELL_FULL_WIDTH / 2) - (viewportWidth / 2) - jitter;
-          const caseMs={common:3200,rare:3800,epic:4500,legendary:5400,super_rare:6100,secret:7000,ultra_secret:8200}[item.rarity]||3800; reel.style.transition=`transform ${caseMs}ms cubic-bezier(.08,.78,.12,1)`;
+          const caseMs={common:4200,rare:5000,epic:5900,legendary:7000,super_rare:7900,secret:9000,ultra_secret:10500}[item.rarity]||5000; reel.style.transition=`transform ${caseMs}ms cubic-bezier(.08,.78,.12,1)`;
           reel.style.transform = `translateX(${-targetOffset}px)`;
         });
       });
@@ -3262,6 +3275,36 @@
       return logicalNow() < dataset[0].dObj ? 0 : dataset.length - 1;
     }
 
+    function recalculateStudyStreak() {
+      // A study day is a day with at least one task where every task is completed.
+      // Empty days are ignored; missing/unfinished task days break the consecutive run.
+      const byId = {};
+      dataset.forEach(d => { byId[d.id] = d; });
+      const today = logicalNow();
+      const start = new Date(today);
+      let streak = 0;
+      // If today exists and is a study day, count it; otherwise start with the most recent prior day.
+      let cursor = new Date(start);
+      const todayData = byId[dateId(cursor)];
+      if (!todayData || !todayData.tasks.length || !todayData.tasks.every(t => !!userProgress[t.id])) {
+        cursor.setDate(cursor.getDate() - 1);
+      }
+      // Walk backward over actual calendar days. Empty days do not count and do not break the run.
+      // A day containing tasks must be fully completed to continue the streak.
+      for (let guard = 0; guard < 3660; guard++) {
+        const id = dateId(cursor);
+        const d = byId[id];
+        if (!d) { cursor.setDate(cursor.getDate() - 1); continue; }
+        if (!d.tasks.length) { cursor.setDate(cursor.getDate() - 1); continue; }
+        if (d.tasks.every(t => !!userProgress[t.id])) { streak++; cursor.setDate(cursor.getDate() - 1); continue; }
+        break;
+      }
+      meta.streak = streak;
+      meta.lastActiveDate = logicalId();
+      saveMeta();
+      return streak;
+    }
+
     function processRollover() {
       const todayId = logicalId();
       if (!meta.lastActiveDate) { meta.lastActiveDate = todayId; saveMeta(); return; }
@@ -3293,6 +3336,7 @@
       meta.lastActiveDate = todayId;
       if (anyNewMiss) meta.locked = true;
       saveMeta();
+      recalculateStudyStreak();
     }
     processRollover();
 
@@ -3527,6 +3571,8 @@
             }
 
             saveProgress();
+            recalculateStudyStreak();
+            updateGamification();
             renderMini();
           };
 
@@ -4171,7 +4217,7 @@ window.clearEmptyDays=function(){const ids=[...new Set([...Object.keys(daysMeta)
             <div>
               <div class="lroad-kicker">STUDY HQ · GARDEN ROAD</div>
               <h2>LEVEL MAP</h2>
-              <p>Scroll to explore every stage, from <b>Little Seedling</b> to <b>THE HAFSAH</b>.</p>
+              <p>Drag or scroll to explore every stage, from <b>Little Seedling</b> to <b>MASTERMIND</b>.</p>
             </div>
             <button class="papers-close" id="lroadClose">✕</button>
           </div>
@@ -4270,6 +4316,8 @@ window.clearEmptyDays=function(){const ids=[...new Set([...Object.keys(daysMeta)
       }
     }, 30);
   }
+  document.getElementById('levelBadge')?.addEventListener('click', openLevelRoad);
+  document.getElementById('levelBadge')?.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLevelRoad(); } });
   document.getElementById('townBuildingCard')?.addEventListener('click', openLevelRoad);
   document.getElementById('townBuildingCard')?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLevelRoad(); }
@@ -4345,4 +4393,3 @@ window.clearEmptyDays=function(){const ids=[...new Set([...Object.keys(daysMeta)
 })();
 </script>
 </body>
-</html>
