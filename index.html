@@ -4292,45 +4292,6 @@
     if(changed)saveDailyShop();
   };
 window.clearEmptyDays=function(){const ids=[...new Set([...Object.keys(daysMeta),...Object.keys(tasksByDate)])];let removed=0;ids.forEach(id=>{if((tasksByDate[id]||[]).length===0){delete tasksByDate[id];delete daysMeta[id];removed++}});saveTasks();saveDays();rebuildDataset();renderApp();renderMini();showInfo(`${removed} empty day${removed===1?'':'s'} cleared. Days containing tasks were kept.`, 'Empty days cleared');}
-
-  // Clear All Days (unfinished-only bulk cleanup). A day is ONLY eligible for
-  // deletion when it has zero checked/completed tasks — that includes days with
-  // no tasks at all. The instant a day has even one checked task, it is kept
-  // in full (checked AND unchecked tasks both stay). Shop/inventory/coins/paper
-  // progress/themes/templates are never touched by this — it only ever writes
-  // to tasksByDate/daysMeta/meta/userProgress, same scope as clearEmptyDays above.
-  window.clearAllUnfinishedDays = function () {
-    const ids = [...new Set([...Object.keys(daysMeta), ...Object.keys(tasksByDate)])];
-    let removedDays = 0, removedTasks = 0;
-    ids.forEach(id => {
-      const tasks = tasksByDate[id] || [];
-      const hasCompleted = tasks.some(t => !!userProgress[t.id]);
-      if (!hasCompleted) {
-        removedTasks += tasks.length;
-        tasks.forEach(t => { delete meta.missed[t.id]; delete meta.missedSince[t.id]; delete userProgress[t.id]; });
-        delete tasksByDate[id];
-        delete daysMeta[id];
-        removedDays++;
-      }
-    });
-    saveTasks(); saveDays(); saveMeta(); saveProgress();
-    rebuildDataset();
-    renderApp(); renderMini();
-    if (typeof updateGamification === 'function') updateGamification();
-    showInfo(`Cleared ${removedDays} day${removedDays === 1 ? '' : 's'} with no completed tasks (${removedTasks} task${removedTasks === 1 ? '' : 's'} removed). Every day with at least one checked task was kept untouched.`, 'Unfinished days cleared');
-  };
-  // Triple-confirmation gate before the destructive clear runs. Cancel at any
-  // stage aborts the whole chain immediately — nothing is deleted unless all
-  // three "Yes" prompts are accepted in a row.
-  window.confirmClearAllUnfinishedDays = function () {
-    showConfirm('Are you sure?', () => {
-      showConfirm('Are you REALLY sure?', () => {
-        showConfirm('FINAL CONFIRMATION — Clear all days with no completed tasks?', () => {
-          clearAllUnfinishedDays();
-        }, 'FINAL CONFIRMATION', 'Yes, Clear Them');
-      }, 'ARE YOU REALLY SURE?', 'Yes, Continue');
-    }, 'CLEAR ALL DAYS?', 'Yes');
-  };
   // Task import parser API and UI. Hyphen = new day, comma = task on that day,
   // category# (e.g. bio#, chem#) sets the running category and persists — across
   // commas AND across day-hyphens — until another category# appears.
@@ -4522,7 +4483,7 @@ window.clearEmptyDays=function(){const ids=[...new Set([...Object.keys(daysMeta)
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLevelRoad(); }
   });
   // Inject settings controls.
-  const settingsTip=document.querySelector('#settingsModal .settings-tip');if(settingsTip){const panel=document.createElement('div');panel.className='settings-tools';panel.innerHTML='<button class="settings-tool" id="clearEmptyDaysBtn">🗑️ <b>Clear Empty Days</b><small>Removes days that have no tasks while keeping every day that contains at least one task.</small></button><button class="settings-tool" id="clearAllDaysBtn">🧹 <b>Clear All Days</b><small>Deletes every day with ZERO completed tasks (including empty days). Any day with at least one checked task is kept in full.</small></button><button class="settings-tool" id="importTasksBtn">📥 <b>Import Branch Tasks</b><small>Use <code>,</code> for same-day tasks and <code>-</code> for a new day. Categories such as <code>Bio#</code> persist until changed.</small></button>';settingsTip.parentElement.appendChild(panel);document.getElementById('clearEmptyDaysBtn').onclick=()=>showConfirm('This will remove every day with no tasks. Days containing tasks will not be affected.',()=>clearEmptyDays(),'CLEAR EMPTY DAYS?','Yes, Delete');document.getElementById('clearAllDaysBtn').onclick=()=>confirmClearAllUnfinishedDays();document.getElementById('importTasksBtn').onclick=()=>{let m=document.getElementById('importModal');if(!m){m=document.createElement('div');m.id='importModal';m.className='modal-overlay';m.innerHTML='<div class="modal-card" style="text-align:left;max-width:620px"><h2>📥 Import Tasks</h2><p>Paste branch syntax below.</p><textarea id="importArea" class="add-task-input" style="width:100%;min-height:140px;resize:vertical" placeholder="Bio# do paper 1, do paper 2 - do paper 3 - CHEM# paper 1"></textarea><div style="display:flex;gap:8px;margin-top:12px"><button class="modal-btn" id="doImport" style="flex:1">Import</button><button class="modal-btn" id="cancelImport" style="flex:1;background:var(--border)">Cancel</button></div></div>';document.body.appendChild(m);m.onclick=e=>{if(e.target===m)m.classList.remove('active')};m.querySelector('#cancelImport').onclick=()=>m.classList.remove('active');m.querySelector('#doImport').onclick=()=>{const v=m.querySelector('#importArea').value;m.classList.remove('active');showConfirm(`Import ${parseStudyHQImport(v).reduce((n,d)=>n+d.tasks.length,0)} tasks across ${parseStudyHQImport(v).length} days?`,()=>importIntoNewDays(v),'IMPORT TASKS?','Yes, Import')}}m.classList.add('active')}}
+  const settingsTip=document.querySelector('#settingsModal .settings-tip');if(settingsTip){const panel=document.createElement('div');panel.className='settings-tools';panel.innerHTML='<button class="settings-tool" id="clearEmptyDaysBtn">🗑️ <b>Clear Empty Days</b><small>Removes days that have no tasks while keeping every day that contains at least one task.</small></button><button class="settings-tool" id="importTasksBtn">📥 <b>Import Branch Tasks</b><small>Use <code>,</code> for same-day tasks and <code>-</code> for a new day. Categories such as <code>Bio#</code> persist until changed.</small></button>';settingsTip.parentElement.appendChild(panel);document.getElementById('clearEmptyDaysBtn').onclick=()=>showConfirm('This will remove every day with no tasks. Days containing tasks will not be affected.',()=>clearEmptyDays(),'CLEAR EMPTY DAYS?','Yes, Delete');document.getElementById('importTasksBtn').onclick=()=>{let m=document.getElementById('importModal');if(!m){m=document.createElement('div');m.id='importModal';m.className='modal-overlay';m.innerHTML='<div class="modal-card" style="text-align:left;max-width:620px"><h2>📥 Import Tasks</h2><p>Paste branch syntax below.</p><textarea id="importArea" class="add-task-input" style="width:100%;min-height:140px;resize:vertical" placeholder="Bio# do paper 1, do paper 2 - do paper 3 - CHEM# paper 1"></textarea><div style="display:flex;gap:8px;margin-top:12px"><button class="modal-btn" id="doImport" style="flex:1">Import</button><button class="modal-btn" id="cancelImport" style="flex:1;background:var(--border)">Cancel</button></div></div>';document.body.appendChild(m);m.onclick=e=>{if(e.target===m)m.classList.remove('active')};m.querySelector('#cancelImport').onclick=()=>m.classList.remove('active');m.querySelector('#doImport').onclick=()=>{const v=m.querySelector('#importArea').value;m.classList.remove('active');showConfirm(`Import ${parseStudyHQImport(v).reduce((n,d)=>n+d.tasks.length,0)} tasks across ${parseStudyHQImport(v).length} days?`,()=>importIntoNewDays(v),'IMPORT TASKS?','Yes, Import')}}m.classList.add('active')}}
   // Hook saveProgress safely through source-level call below; immediate check handles existing milestones.
   maybeDiscoverHidden();
   // Stronger mobile-safe touch targets and visual effects.
@@ -5792,3 +5753,4 @@ window.clearEmptyDays=function(){const ids=[...new Set([...Object.keys(daysMeta)
 
 </body>
 </html>
+
